@@ -30,3 +30,6 @@ venv/
 .cache/
 .python-version
 uv.lock
+
+.aider*
+logs/
