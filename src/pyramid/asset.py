@@ -21,16 +21,7 @@ def asset_spec_from_abspath(abspath, package):
     """Try to convert an absolute path to a resource in a package to
     a resource specification if possible; otherwise return the
     absolute path."""
-    if getattr(package, '__name__', None) == '__main__':
-        return abspath
-    pp = package_path(package) + os.path.sep
-    if abspath.startswith(pp):
-        relpath = abspath[len(pp) :]
-        return '{}:{}'.format(
-            package_name(package),
-            relpath.replace(os.path.sep, '/'),
-        )
-    return abspath
+    pass
 
 
 # bw compat only; use pyramid.path.AssetResolver().resolve(spec).abspath()

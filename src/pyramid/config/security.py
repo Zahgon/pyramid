@@ -36,24 +36,7 @@ class SecurityConfiguratorMixin:
            achieve the same purpose.
 
         """
-
-        def register():
-            self.registry.registerUtility(policy, ISecurityPolicy)
-
-        policy = self.maybe_dotted(policy)
-        intr = self.introspectable(
-            'security policy',
-            None,
-            self.object_description(policy),
-            'security policy',
-        )
-        intr['policy'] = policy
-        self.action(
-            ISecurityPolicy,
-            register,
-            order=PHASE2_CONFIG,
-            introspectables=(intr,),
-        )
+        pass
 
     @action_method
     def set_authentication_policy(self, policy):
@@ -75,46 +58,7 @@ class SecurityConfiguratorMixin:
            achieve the same purpose.
 
         """
-        warnings.warn(
-            'Authentication and authorization policies have been deprecated '
-            'in favor of security policies.  See "Upgrading '
-            'Authentication/Authorization" in "What\'s New in Pyramid 2.0" '
-            'of the documentation for more information.',
-            DeprecationWarning,
-            stacklevel=3,
-        )
-
-        def register():
-            self.registry.registerUtility(policy, IAuthenticationPolicy)
-            if self.registry.queryUtility(IAuthorizationPolicy) is None:
-                raise ConfigurationError(
-                    'Cannot configure an authentication policy without '
-                    'also configuring an authorization policy '
-                    '(use the set_authorization_policy method)'
-                )
-            if self.registry.queryUtility(ISecurityPolicy) is not None:
-                raise ConfigurationError(
-                    'Cannot configure an authentication and authorization'
-                    'policy with a configured security policy.'
-                )
-            security_policy = LegacySecurityPolicy()
-            self.registry.registerUtility(security_policy, ISecurityPolicy)
-
-        policy = self.maybe_dotted(policy)
-        intr = self.introspectable(
-            'authentication policy',
-            None,
-            self.object_description(policy),
-            'authentication policy',
-        )
-        intr['policy'] = policy
-        # authentication policy used by view config (phase 3)
-        self.action(
-            IAuthenticationPolicy,
-            register,
-            order=PHASE2_CONFIG,
-            introspectables=(intr,),
-        )
+        pass
 
     @action_method
     def set_authorization_policy(self, policy):
@@ -136,45 +80,7 @@ class SecurityConfiguratorMixin:
            achieve the same purpose.
 
         """
-        warnings.warn(
-            'Authentication and authorization policies have been deprecated '
-            'in favor of security policies.  See "Upgrading '
-            'Authentication/Authorization" in "What\'s New in Pyramid 2.0" '
-            'of the documentation for more information.',
-            DeprecationWarning,
-            stacklevel=3,
-        )
-
-        def register():
-            self.registry.registerUtility(policy, IAuthorizationPolicy)
-
-        def ensure():
-            if self.autocommit:
-                return
-            if self.registry.queryUtility(IAuthenticationPolicy) is None:
-                raise ConfigurationError(
-                    'Cannot configure an authorization policy without '
-                    'also configuring an authentication policy '
-                    '(use the set_authorization_policy method)'
-                )
-
-        policy = self.maybe_dotted(policy)
-        intr = self.introspectable(
-            'authorization policy',
-            None,
-            self.object_description(policy),
-            'authorization policy',
-        )
-        intr['policy'] = policy
-        # authorization policy used by view config (phase 3) and
-        # authentication policy (phase 2)
-        self.action(
-            IAuthorizationPolicy,
-            register,
-            order=PHASE1_CONFIG,
-            introspectables=(intr,),
-        )
-        self.action(None, ensure)
+        pass
 
     @action_method
     def set_default_permission(self, permission):
@@ -217,25 +123,7 @@ class SecurityConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor can be used to
            achieve the same purpose.
         """
-
-        def register():
-            self.registry.registerUtility(permission, IDefaultPermission)
-
-        intr = self.introspectable(
-            'default permission', None, permission, 'default permission'
-        )
-        intr['value'] = permission
-        perm_intr = self.introspectable(
-            'permissions', permission, permission, 'permission'
-        )
-        perm_intr['value'] = permission
-        # default permission used during view registration (phase 3)
-        self.action(
-            IDefaultPermission,
-            register,
-            order=PHASE1_CONFIG,
-            introspectables=(intr, perm_intr),
-        )
+        pass
 
     def add_permission(self, permission_name):
         """
@@ -248,11 +136,7 @@ class SecurityConfiguratorMixin:
           config = Configurator()
           config.add_permission('view')
         """
-        intr = self.introspectable(
-            'permissions', permission_name, permission_name, 'permission'
-        )
-        intr['value'] = permission_name
-        self.action(None, introspectables=(intr,))
+        pass
 
     @action_method
     def set_default_csrf_options(

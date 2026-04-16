@@ -154,82 +154,27 @@ class MultiView:
 
 
 def attr_wrapped_view(view, info):
-    accept, order, phash = (
-        info.options.get('accept', None),
-        getattr(info, 'order', MAX_ORDER),
-        getattr(info, 'phash', DEFAULT_PHASH),
-    )
-    # this is a little silly but we don't want to decorate the original
-    # function with attributes that indicate accept, order, and phash,
-    # so we use a wrapper
-    if (accept is None) and (order == MAX_ORDER) and (phash == DEFAULT_PHASH):
-        return view  # defaults
-
-    def attr_view(context, request):
-        return view(context, request)
-
-    attr_view.__accept__ = accept
-    attr_view.__order__ = order
-    attr_view.__phash__ = phash
-    attr_view.__view_attr__ = info.options.get('attr')
-    attr_view.__permission__ = info.options.get('permission')
-    return attr_view
+    pass
 
 
 attr_wrapped_view.options = ('accept', 'attr', 'permission')
 
 
 def predicated_view(view, info):
-    preds = info.predicates
-    if not preds:
-        return view
-
-    def predicate_wrapper(context, request):
-        for predicate in preds:
-            if not predicate(context, request):
-                view_name = getattr(view, '__name__', view)
-                raise PredicateMismatch(
-                    'predicate mismatch for view %s (%s)'
-                    % (view_name, predicate.text())
-                )
-        return view(context, request)
-
-    def checker(context, request):
-        return all(predicate(context, request) for predicate in preds)
-
-    predicate_wrapper.__predicated__ = checker
-    predicate_wrapper.__predicates__ = preds
-    return predicate_wrapper
+    pass
 
 
 def viewdefaults(wrapped):
     """Decorator for add_view-like methods which takes into account
     __view_defaults__ attached to view it is passed.  Not a documented API but
     used by some external systems."""
-
-    def wrapper(self, *arg, **kw):
-        defaults = {}
-        if arg:
-            view = arg[0]
-        else:
-            view = kw.get('view')
-        view = self.maybe_dotted(view)
-        if inspect.isclass(view):
-            defaults = getattr(view, '__view_defaults__', {}).copy()
-        if '_backframes' not in kw:
-            kw['_backframes'] = 1  # for action_method
-        defaults.update(kw)
-        return wrapped(self, *arg, **defaults)
-
-    return functools.wraps(wrapped)(wrapper)
+    pass
 
 
 def combine_decorators(*decorators):
     def decorated(view_callable):
         # reversed() allows a more natural ordering in the api
-        for decorator in reversed(decorators):
-            view_callable = decorator(view_callable)
-        return view_callable
+        pass
 
     return decorated
 
@@ -880,25 +825,7 @@ class ViewsConfiguratorMixin:
             # is.  It can't be computed any sooner because thirdparty
             # predicates/view derivers may not yet exist when add_view is
             # called.
-            predlist = self.get_predlist('view')
-            valid_predicates = predlist.names()
-            pvals = {}
-            dvals = {}
-
-            for k, v in ovals.items():
-                if k in valid_predicates:
-                    pvals[k] = v
-                else:
-                    dvals[k] = v
-
-            self._check_view_options(**dvals)
-
-            order, preds, phash = predlist.make(self, **pvals)
-
-            view_intr.update(
-                {'phash': phash, 'order': order, 'predicates': preds}
-            )
-            return ('view', context, name, route_name, phash)
+            pass
 
         discriminator = Deferred(discrim_func)
 
@@ -1914,26 +1841,7 @@ class ViewsConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor
            can be used to achieve the same purpose.
         """
-        mapper = self.maybe_dotted(mapper)
-
-        def register():
-            self.registry.registerUtility(mapper, IViewMapperFactory)
-
-        # IViewMapperFactory is looked up as the result of view config
-        # in phase 3
-        intr = self.introspectable(
-            'view mappers',
-            IViewMapperFactory,
-            self.object_description(mapper),
-            'default view mapper',
-        )
-        intr['mapper'] = mapper
-        self.action(
-            IViewMapperFactory,
-            register,
-            order=PHASE1_CONFIG,
-            introspectables=(intr,),
-        )
+        pass
 
     @action_method
     def add_static_view(self, name, path, **kw):
@@ -2046,9 +1954,7 @@ class ViewsConfiguratorMixin:
            Added the ``content_encodings`` argument.
 
         """
-        spec = self._make_spec(path)
-        info = self._get_static_info()
-        info.add(self, name, spec, **kw)
+        pass
 
     def add_cache_buster(self, path, cachebust, explicit=False):
         """
@@ -2074,16 +1980,10 @@ class ViewsConfiguratorMixin:
         .. versionadded:: 1.6
 
         """
-        spec = self._make_spec(path)
-        info = self._get_static_info()
-        info.add_cache_buster(self, spec, cachebust, explicit=explicit)
+        pass
 
     def _get_static_info(self):
-        info = self.registry.queryUtility(IStaticURLInfo)
-        if info is None:
-            info = StaticURLInfo()
-            self.registry.registerUtility(info, IStaticURLInfo)
-        return info
+        pass
 
 
 def isexception(o):
@@ -2100,9 +2000,7 @@ def runtime_exc_view(view, excview):
     # and an exception view, dispatching to the appropriate one based
     # on the state of request.exception
     def wrapper_view(context, request):
-        if getattr(request, 'exception', None):
-            return excview(context, request)
-        return view(context, request)
+        pass
 
     # these constants are the same between the two views
     wrapper_view.__wraps__ = wrapper_view
@@ -2152,7 +2050,7 @@ class ViewDeriverInfo:
 
     @reify
     def settings(self):
-        return self.registry.settings
+        pass
 
 
 @implementer(IStaticURLInfo)
@@ -2162,30 +2060,7 @@ class StaticURLInfo:
         self.cache_busters = []
 
     def generate(self, path, request, **kw):
-        for url, spec, route_name in self.registrations:
-            if path.startswith(spec):
-                subpath = path[len(spec) :]
-                if WIN:  # pragma: no cover
-                    subpath = subpath.replace('\\', '/')  # windows
-                if self.cache_busters:
-                    subpath, kw = self._bust_asset_path(
-                        request, spec, subpath, kw
-                    )
-                if url is None:
-                    kw['subpath'] = subpath
-                    return request.route_url(route_name, **kw)
-                else:
-                    app_url, qs, anchor = parse_url_overrides(request, kw)
-                    parsed = urlparse(url)
-                    if not parsed.scheme:
-                        url = urlunparse(
-                            parsed._replace(scheme=request.scheme)
-                        )
-                    subpath = quote(subpath)
-                    result = urljoin(url, subpath)
-                    return result + qs + anchor
-
-        raise ValueError('No static URL definition matching %s' % path)
+        pass
 
     def add(self, config, name, spec, **extra):
         # This feature only allows for the serving of a directory and
@@ -2282,74 +2157,7 @@ class StaticURLInfo:
     def add_cache_buster(self, config, spec, cachebust, explicit=False):
         # ensure the spec always has a trailing slash as we only support
         # adding cache busters to folders, not files
-        if os.path.isabs(spec):  # FBO windows
-            sep = os.sep
-        else:
-            sep = '/'
-        if not spec.endswith(sep) and not spec.endswith(':'):
-            spec = spec + sep
-
-        def register():
-            if config.registry.settings.get('pyramid.prevent_cachebust'):
-                return
-
-            cache_busters = self.cache_busters
-
-            # find duplicate cache buster (old_idx)
-            # and insertion location (new_idx)
-            new_idx, old_idx = len(cache_busters), None
-            for idx, (spec_, cb_, explicit_) in enumerate(cache_busters):
-                # if we find an identical (spec, explicit) then use it
-                if spec == spec_ and explicit == explicit_:
-                    old_idx = new_idx = idx
-                    break
-
-                # past all explicit==False specs then add to the end
-                elif not explicit and explicit_:
-                    new_idx = idx
-                    break
-
-                # explicit matches and spec is shorter
-                elif explicit == explicit_ and len(spec) < len(spec_):
-                    new_idx = idx
-                    break
-
-            if old_idx is not None:
-                cache_busters.pop(old_idx)
-
-            cache_busters.insert(new_idx, (spec, cachebust, explicit))
-
-        intr = config.introspectable(
-            'cache busters', spec, 'cache buster for %r' % spec, 'cache buster'
-        )
-        intr['cachebust'] = cachebust
-        intr['path'] = spec
-        intr['explicit'] = explicit
-
-        config.action(None, callable=register, introspectables=(intr,))
+        pass
 
     def _bust_asset_path(self, request, spec, subpath, kw):
-        registry = request.registry
-        pkg_name, pkg_subpath = resolve_asset_spec(spec)
-        rawspec = None
-
-        if pkg_name is not None:
-            pathspec = f'{pkg_name}:{pkg_subpath}{subpath}'
-            overrides = registry.queryUtility(IPackageOverrides, name=pkg_name)
-            if overrides is not None:
-                rawspec = overrides.get_spec(f'{pkg_subpath}{subpath}')
-        else:
-            pathspec = pkg_subpath + subpath
-
-        if rawspec is None:
-            rawspec = pathspec
-
-        kw['pathspec'] = pathspec
-        kw['rawspec'] = rawspec
-        for spec_, cachebust, explicit in reversed(self.cache_busters):
-            if (explicit and rawspec.startswith(spec_)) or (
-                not explicit and pathspec.startswith(spec_)
-            ):
-                subpath, kw = cachebust(request, subpath, kw)
-                break
-        return subpath, kw
+        pass

@@ -43,8 +43,7 @@ def get_appsettings(config_uri, name=None, options=None):
     If no name is found, the name will default to "main".
 
     """
-    loader = get_config_loader(config_uri)
-    return loader.get_wsgi_app_settings(name, options)
+    pass
 
 
 def bootstrap(config_uri, request=None, options=None):

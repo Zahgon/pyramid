@@ -28,22 +28,7 @@ class FactoriesConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor can be used to
            achieve the same purpose.
         """
-        factory = self.maybe_dotted(factory)
-        if factory is None:
-            factory = DefaultRootFactory
-
-        def register():
-            self.registry.registerUtility(factory, IRootFactory)
-            self.registry.registerUtility(factory, IDefaultRootFactory)  # b/c
-
-        intr = self.introspectable(
-            'root factories',
-            None,
-            self.object_description(factory),
-            'root factory',
-        )
-        intr['factory'] = factory
-        self.action(IRootFactory, register, introspectables=(intr,))
+        pass
 
     _set_root_factory = set_root_factory  # bw compat
 
@@ -60,19 +45,7 @@ class FactoriesConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor can be used to
            achieve the same purpose.
         """
-        factory = self.maybe_dotted(factory)
-
-        def register():
-            self.registry.registerUtility(factory, ISessionFactory)
-
-        intr = self.introspectable(
-            'session factory',
-            None,
-            self.object_description(factory),
-            'session factory',
-        )
-        intr['factory'] = factory
-        self.action(ISessionFactory, register, introspectables=(intr,))
+        pass
 
     @action_method
     def set_request_factory(self, factory):
@@ -94,19 +67,7 @@ class FactoriesConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor
            can be used to achieve the same purpose.
         """
-        factory = self.maybe_dotted(factory)
-
-        def register():
-            self.registry.registerUtility(factory, IRequestFactory)
-
-        intr = self.introspectable(
-            'request factory',
-            None,
-            self.object_description(factory),
-            'request factory',
-        )
-        intr['factory'] = factory
-        self.action(IRequestFactory, register, introspectables=(intr,))
+        pass
 
     @action_method
     def set_response_factory(self, factory):
@@ -122,19 +83,7 @@ class FactoriesConfiguratorMixin:
            :class:`pyramid.config.Configurator` constructor
            can be used to achieve the same purpose.
         """
-        factory = self.maybe_dotted(factory)
-
-        def register():
-            self.registry.registerUtility(factory, IResponseFactory)
-
-        intr = self.introspectable(
-            'response factory',
-            None,
-            self.object_description(factory),
-            'response factory',
-        )
-        intr['factory'] = factory
-        self.action(IResponseFactory, register, introspectables=(intr,))
+        pass
 
     @action_method
     def add_request_method(
@@ -239,21 +188,7 @@ class FactoriesConfiguratorMixin:
         execution policy.
 
         """
-        policy = self.maybe_dotted(policy)
-        if policy is None:
-            policy = default_execution_policy
-
-        def register():
-            self.registry.registerUtility(policy, IExecutionPolicy)
-
-        intr = self.introspectable(
-            'execution policy',
-            None,
-            self.object_description(policy),
-            'execution policy',
-        )
-        intr['policy'] = policy
-        self.action(IExecutionPolicy, register, introspectables=(intr,))
+        pass
 
 
 @implementer(IRequestExtensions)

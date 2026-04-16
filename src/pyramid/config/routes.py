@@ -387,25 +387,7 @@ class RoutesConfiguratorMixin:
             original_pregenerator = pregenerator
 
             def external_url_pregenerator(request, elements, kw):
-                if '_app_url' in kw:
-                    raise ValueError(
-                        'You cannot generate a path to an external route '
-                        'pattern via request.route_path nor pass an _app_url '
-                        'to request.route_url when generating a URL for an '
-                        'external route pattern (pattern was "%s") '
-                        % (pattern,)
-                    )
-                if '_scheme' in kw:
-                    scheme = kw['_scheme']
-                elif parsed.scheme:
-                    scheme = parsed.scheme
-                else:
-                    scheme = request.scheme
-                kw['_app_url'] = f'{scheme}://{parsed.netloc}'
-
-                if original_pregenerator:
-                    elements, kw = original_pregenerator(request, elements, kw)
-                return elements, kw
+                pass
 
             pregenerator = external_url_pregenerator
             static = True
@@ -458,46 +440,10 @@ class RoutesConfiguratorMixin:
             introspectables.append(factory_intr)
 
         def register_route_request_iface():
-            request_iface = self.registry.queryUtility(
-                IRouteRequest, name=name
-            )
-            if request_iface is None:
-                if use_global_views:
-                    bases = (IRequest,)
-                else:
-                    bases = ()
-                request_iface = route_request_iface(name, bases)
-                self.registry.registerUtility(
-                    request_iface, IRouteRequest, name=name
-                )
+            pass
 
         def register_connect():
-            pvals = predicates.copy()
-            pvals.update(
-                dict(
-                    xhr=xhr,
-                    request_method=request_method,
-                    path_info=path_info,
-                    request_param=request_param,
-                    header=header,
-                    accept=accept,
-                    traverse=traverse,
-                    custom=predvalseq(custom_predicates),
-                )
-            )
-
-            predlist = self.get_predlist('route')
-            _, preds, _ = predlist.make(self, **pvals)
-            route = mapper.connect(
-                name,
-                pattern,
-                factory,
-                predicates=preds,
-                pregenerator=pregenerator,
-                static=static,
-            )
-            intr['object'] = route
-            return route
+            pass
 
         # We have to connect routes in the order they were provided;
         # we can't use a phase to do that, because when the actions are

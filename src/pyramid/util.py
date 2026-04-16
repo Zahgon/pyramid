@@ -169,8 +169,7 @@ class InstancePropertyHelper:
     @classmethod
     def set_property(cls, target, callable, name=None, reify=False):
         """A helper method to apply a single property to an instance."""
-        prop = cls.make_property(callable, name=name, reify=reify)
-        cls.apply_properties(target, [prop])
+        pass
 
     def add_property(self, callable, name=None, reify=False):
         """Add a new property configuration.
@@ -178,13 +177,11 @@ class InstancePropertyHelper:
         This should be used in combination with :meth:`.apply` as a
         more efficient version of :meth:`.set_property`.
         """
-        name, fn = self.make_property(callable, name=name, reify=reify)
-        self.properties[name] = fn
+        pass
 
     def apply(self, target):
         """Apply all configured properties to the ``target`` instance."""
-        if self.properties:
-            self.apply_properties(target, self.properties)
+        pass
 
 
 class InstancePropertyMixin:
@@ -245,9 +242,7 @@ class InstancePropertyMixin:
            >>> foo.y # notice y keeps the original value
            1
         """
-        InstancePropertyHelper.set_property(
-            self, callable, name=name, reify=reify
-        )
+        pass
 
 
 class WeakOrderedSet:
@@ -312,9 +307,7 @@ class WeakOrderedSet:
 
     @property
     def last(self):
-        if self._order:
-            oid = self._order[-1]
-            return self._items[oid]()
+        pass
 
 
 def strings_differ(string1, string2):
@@ -500,84 +493,7 @@ class TopologicalSorter:
 
     def sorted(self):
         """Returns the sort input values in topologically sorted order"""
-        order = [(self.first, self.last)]
-        roots = []
-        graph = {}
-        names = [self.first, self.last]
-        names.extend(self.names)
-
-        for a, b in self.order:
-            order.append((a, b))
-
-        def add_node(node):
-            if node not in graph:
-                roots.append(node)
-                graph[node] = [0]  # 0 = number of arcs coming into this node
-
-        def add_arc(fromnode, tonode):
-            graph[fromnode].append(tonode)
-            graph[tonode][0] += 1
-            if tonode in roots:
-                roots.remove(tonode)
-
-        for name in names:
-            add_node(name)
-
-        has_before, has_after = set(), set()
-        for a, b in order:
-            if a in names and b in names:  # deal with missing dependencies
-                add_arc(a, b)
-                has_before.add(a)
-                has_after.add(b)
-
-        if not self.req_before.issubset(has_before):
-            # avoid circular dependency
-            from pyramid.exceptions import ConfigurationError
-
-            raise ConfigurationError(
-                'Unsatisfied before dependencies: %s'
-                % (', '.join(sorted(self.req_before - has_before)))
-            )
-        if not self.req_after.issubset(has_after):
-            # avoid circular dependency
-            from pyramid.exceptions import ConfigurationError
-
-            raise ConfigurationError(
-                'Unsatisfied after dependencies: %s'
-                % (', '.join(sorted(self.req_after - has_after)))
-            )
-
-        sorted_names = []
-
-        while roots:
-            root = roots.pop(0)
-            sorted_names.append(root)
-            children = graph[root][1:]
-            for child in children:
-                arcs = graph[child][0]
-                arcs -= 1
-                graph[child][0] = arcs
-                if arcs == 0:
-                    roots.insert(0, child)
-            del graph[root]
-
-        if graph:
-            # avoid circular dependency
-            from pyramid.exceptions import CyclicDependencyError
-
-            # loop in input
-            cycledeps = {}
-            for k, v in graph.items():
-                cycledeps[k] = v[1:]
-            raise CyclicDependencyError(cycledeps)
-
-        result = []
-
-        for name in sorted_names:
-            if name in self.names:
-                result.append((name, self.name2val[name]))
-
-        return result
+        pass
 
 
 def get_callable_name(name):
@@ -699,7 +615,7 @@ def takes_one_arg(callee, attr=None, argname=None, allow_varargs=True):
 
 class SimpleSerializer:
     def loads(self, bstruct):
-        return text_(bstruct)
+        pass
 
     def dumps(self, appstruct):
         return bytes_(appstruct)

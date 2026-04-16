@@ -14,29 +14,13 @@ from pyramid.util import bytes_, text_
 def manage_accessed(wrapped):
     """Decorator which causes a cookie to be renewed when an accessor
     method is called."""
-
-    def accessed(session, *arg, **kw):
-        session.accessed = now = int(time.time())
-        if session._reissue_time is not None:
-            if now - session.renewed > session._reissue_time:
-                session.changed()
-        return wrapped(session, *arg, **kw)
-
-    accessed.__doc__ = wrapped.__doc__
-    return accessed
+    pass
 
 
 def manage_changed(wrapped):
     """Decorator which causes a cookie to be set when a setter method
     is called."""
-
-    def changed(session, *arg, **kw):
-        session.accessed = int(time.time())
-        session.changed()
-        return wrapped(session, *arg, **kw)
-
-    changed.__doc__ = wrapped.__doc__
-    return changed
+    pass
 
 
 class PickleSerializer:
@@ -66,12 +50,7 @@ class PickleSerializer:
 
     def loads(self, bstruct):
         """Accept bytes and return a Python object."""
-        try:
-            return pickle.loads(bstruct)
-        except Exception:
-            # this block should catch at least:
-            # ValueError, AttributeError, ImportError; but more to be safe
-            raise ValueError
+        pass
 
     def dumps(self, appstruct):
         """Accept a Python object and return bytes."""
@@ -186,162 +165,7 @@ def BaseCookieSessionFactory(
 
        Added the ``samesite`` option and made the default ``'Lax'``.
     """
-
-    @implementer(ISession)
-    class CookieSession(dict):
-        """Dictionary-like session object"""
-
-        # configuration parameters
-        _cookie_name = cookie_name
-        _cookie_max_age = max_age if max_age is None else int(max_age)
-        _cookie_path = path
-        _cookie_domain = domain
-        _cookie_secure = secure
-        _cookie_httponly = httponly
-        _cookie_samesite = samesite
-        _cookie_on_exception = set_on_exception
-        _timeout = timeout if timeout is None else int(timeout)
-        _reissue_time = (
-            reissue_time if reissue_time is None else int(reissue_time)
-        )
-
-        # dirty flag
-        _dirty = False
-
-        def __init__(self, request):
-            self.request = request
-            now = time.time()
-            created = renewed = now
-            new = True
-            value = None
-            state = {}
-            cookieval = request.cookies.get(self._cookie_name)
-            if cookieval is not None:
-                try:
-                    value = serializer.loads(bytes_(cookieval))
-                except ValueError:
-                    # the cookie failed to deserialize, dropped
-                    value = None
-
-            if value is not None:
-                try:
-                    # since the value is not necessarily signed, we have
-                    # to unpack it a little carefully
-                    rval, cval, sval = value
-                    renewed = float(rval)
-                    created = float(cval)
-                    state = sval
-                    new = False
-                except (TypeError, ValueError):
-                    # value failed to unpack properly or renewed was not
-                    # a numeric type so we'll fail deserialization here
-                    state = {}
-
-            if self._timeout is not None:
-                if now - renewed > self._timeout:
-                    # expire the session because it was not renewed
-                    # before the timeout threshold
-                    state = {}
-
-            self.created = created
-            self.accessed = renewed
-            self.renewed = renewed
-            self.new = new
-            dict.__init__(self, state)
-
-        # ISession methods
-        def changed(self):
-            if not self._dirty:
-                self._dirty = True
-
-                def set_cookie_callback(request, response):
-                    self._set_cookie(response)
-                    self.request = None  # explicitly break cycle for gc
-
-                self.request.add_response_callback(set_cookie_callback)
-
-        def invalidate(self):
-            self.clear()  # XXX probably needs to unset cookie
-
-        # non-modifying dictionary methods
-        get = manage_accessed(dict.get)
-        __getitem__ = manage_accessed(dict.__getitem__)
-        items = manage_accessed(dict.items)
-        values = manage_accessed(dict.values)
-        keys = manage_accessed(dict.keys)
-        __contains__ = manage_accessed(dict.__contains__)
-        __len__ = manage_accessed(dict.__len__)
-        __iter__ = manage_accessed(dict.__iter__)
-
-        # modifying dictionary methods
-        clear = manage_changed(dict.clear)
-        update = manage_changed(dict.update)
-        setdefault = manage_changed(dict.setdefault)
-        pop = manage_changed(dict.pop)
-        popitem = manage_changed(dict.popitem)
-        __setitem__ = manage_changed(dict.__setitem__)
-        __delitem__ = manage_changed(dict.__delitem__)
-
-        # flash API methods
-        @manage_changed
-        def flash(self, msg, queue='', allow_duplicate=True):
-            storage = self.setdefault('_f_' + queue, [])
-            if allow_duplicate or (msg not in storage):
-                storage.append(msg)
-
-        @manage_changed
-        def pop_flash(self, queue=''):
-            storage = self.pop('_f_' + queue, [])
-            return storage
-
-        @manage_accessed
-        def peek_flash(self, queue=''):
-            storage = self.get('_f_' + queue, [])
-            return storage
-
-        # CSRF API methods
-        @manage_changed
-        def new_csrf_token(self):
-            token = text_(binascii.hexlify(os.urandom(20)))
-            self['_csrft_'] = token
-            return token
-
-        @manage_accessed
-        def get_csrf_token(self):
-            token = self.get('_csrft_', None)
-            if token is None:
-                token = self.new_csrf_token()
-            return token
-
-        # non-API methods
-        def _set_cookie(self, response):
-            if not self._cookie_on_exception:
-                exception = getattr(self.request, 'exception', None)
-                if (
-                    exception is not None
-                ):  # dont set a cookie during exceptions
-                    return False
-            cookieval = text_(
-                serializer.dumps((self.accessed, self.created, dict(self)))
-            )
-            if len(cookieval) > 4064:
-                raise ValueError(
-                    'Cookie value is too long to store (%s bytes)'
-                    % len(cookieval)
-                )
-            response.set_cookie(
-                self._cookie_name,
-                value=cookieval,
-                max_age=self._cookie_max_age,
-                path=self._cookie_path,
-                domain=self._cookie_domain,
-                secure=self._cookie_secure,
-                httponly=self._cookie_httponly,
-                samesite=self._cookie_samesite,
-            )
-            return True
-
-    return CookieSession
+    pass
 
 
 def SignedCookieSessionFactory(
@@ -471,26 +295,7 @@ def SignedCookieSessionFactory(
         :class:`pyramid.session.JSONSerializer`.
 
     """
-    if serializer is None:
-        serializer = JSONSerializer()
-
-    signed_serializer = SignedSerializer(
-        secret, salt, hashalg, serializer=serializer
-    )
-
-    return BaseCookieSessionFactory(
-        signed_serializer,
-        cookie_name=cookie_name,
-        max_age=max_age,
-        path=path,
-        domain=domain,
-        secure=secure,
-        httponly=httponly,
-        samesite=samesite,
-        timeout=timeout,
-        reissue_time=reissue_time,
-        set_on_exception=set_on_exception,
-    )
+    pass
 
 
 check_csrf_origin = check_csrf_origin  # api

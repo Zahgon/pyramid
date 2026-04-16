@@ -12,11 +12,7 @@ init_names = ['__init__%s' % x for x in SOURCE_SUFFIXES]
 
 
 def caller_path(path, level=2):
-    if not os.path.isabs(path):
-        module = caller_module(level + 1)
-        prefix = package_path(module)
-        path = os.path.join(prefix, path)
-    return path
+    pass
 
 
 def caller_module(level=2, sys=sys):
@@ -106,18 +102,10 @@ class Resolver:
             self.package = package_of(package)
 
     def get_package_name(self):
-        if self.package is CALLER_PACKAGE:
-            package_name = caller_package().__name__
-        else:
-            package_name = self.package.__name__
-        return package_name
+        pass
 
     def get_package(self):
-        if self.package is CALLER_PACKAGE:
-            package = caller_package()
-        else:
-            package = self.package
-        return package
+        pass
 
 
 class AssetResolver(Resolver):
@@ -407,7 +395,7 @@ class PkgResourcesAssetDescriptor:
         self.path = path
 
     def absspec(self):
-        return f'{self.pkg_name}:{self.path}'
+        pass
 
     def abspath(self):
         return os.path.abspath(
@@ -415,13 +403,13 @@ class PkgResourcesAssetDescriptor:
         )
 
     def stream(self):
-        return self.pkg_resources.resource_stream(self.pkg_name, self.path)
+        pass
 
     def isdir(self):
         return self.pkg_resources.resource_isdir(self.pkg_name, self.path)
 
     def listdir(self):
-        return self.pkg_resources.resource_listdir(self.pkg_name, self.path)
+        pass
 
     def exists(self):
         return self.pkg_resources.resource_exists(self.pkg_name, self.path)
@@ -439,13 +427,13 @@ class FSAssetDescriptor:
         return self.path
 
     def stream(self):
-        return open(self.path, 'rb')
+        pass
 
     def isdir(self):
         return os.path.isdir(self.path)
 
     def listdir(self):
-        return os.listdir(self.path)
+        pass
 
     def exists(self):
         return os.path.exists(self.path)

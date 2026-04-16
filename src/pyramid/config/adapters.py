@@ -79,7 +79,7 @@ class AdaptersConfiguratorMixin:
         if eventonly(predicate):
 
             def derived_predicate(*arg):
-                return predicate(arg[0])
+                pass
 
             # seems pointless to try to fix __doc__, __module__, etc as
             # predicate will invariably be an instance
@@ -121,8 +121,7 @@ class AdaptersConfiguratorMixin:
             # with all args, the eventonly hack would not have been required.
             # At this point, though, using .subscriptions and manual execution
             # is not possible without badly breaking backwards compatibility.
-            if all(predicate(*arg) for predicate in predicates):
-                return derived_subscriber(*arg)
+            pass
 
         if hasattr(subscriber, '__name__'):
             update_wrapper(subscriber_wrapper, subscriber)
@@ -151,13 +150,7 @@ class AdaptersConfiguratorMixin:
         See :ref:`subscriber_predicates` for more information.
 
         """
-        self._add_predicate(
-            'subscriber',
-            name,
-            factory,
-            weighs_more_than=weighs_more_than,
-            weighs_less_than=weighs_less_than,
-        )
+        pass
 
     @action_method
     def add_response_adapter(self, adapter, type_or_iface):
@@ -253,24 +246,7 @@ class AdaptersConfiguratorMixin:
 
         See :ref:`changing_the_traverser` for more information.
         """
-        iface = self.maybe_dotted(iface)
-        adapter = self.maybe_dotted(adapter)
-
-        def register(iface=iface):
-            if iface is None:
-                iface = Interface
-            self.registry.registerAdapter(adapter, (iface,), ITraverser)
-
-        discriminator = ('traverser', iface)
-        intr = self.introspectable(
-            'traversers',
-            discriminator,
-            'traverser for %r' % iface,
-            'traverser',
-        )
-        intr['adapter'] = adapter
-        intr['iface'] = iface
-        self.action(discriminator, register, introspectables=(intr,))
+        pass
 
     @action_method
     def add_resource_url_adapter(self, adapter, resource_iface=None):
@@ -303,26 +279,7 @@ class AdaptersConfiguratorMixin:
 
         See :ref:`changing_resource_url` for more information.
         """
-        adapter = self.maybe_dotted(adapter)
-        resource_iface = self.maybe_dotted(resource_iface)
-
-        def register(resource_iface=resource_iface):
-            if resource_iface is None:
-                resource_iface = Interface
-            self.registry.registerAdapter(
-                adapter, (resource_iface, Interface), IResourceURL
-            )
-
-        discriminator = ('resource url adapter', resource_iface)
-        intr = self.introspectable(
-            'resource url adapters',
-            discriminator,
-            'resource url adapter for resource iface %r' % resource_iface,
-            'resource url adapter',
-        )
-        intr['adapter'] = adapter
-        intr['resource_iface'] = resource_iface
-        self.action(discriminator, register, introspectables=(intr,))
+        pass
 
 
 def eventonly(callee):

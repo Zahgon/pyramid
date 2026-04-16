@@ -17,6 +17,4 @@ class ZCAConfiguratorMixin:
     def unhook_zca(self):
         """Call :func:`zope.component.getSiteManager.reset` to undo the
         action of :meth:`pyramid.config.Configurator.hook_zca`."""
-        from zope.component import getSiteManager
-
-        getSiteManager.reset()
+        pass

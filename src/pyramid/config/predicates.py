@@ -250,18 +250,6 @@ def sort_accept_offers(offers, order=None):
             - ``max_weight + 1`` if no params at all
 
         """
-        parsed = Accept.parse_offer(value)
-
-        type_w = find_order_index(
-            parsed.type + '/' + parsed.subtype, max_weight
-        )
-
-        if parsed.params:
-            param_w = find_order_index(value, max_weight)
-
-        else:
-            param_w = max_weight + 1
-
-        return (type_w, param_w)
+        pass
 
     return sorted(offers, key=offer_sort_key)

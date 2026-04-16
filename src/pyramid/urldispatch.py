@@ -32,7 +32,7 @@ class RoutesMapper:
         self.routes = {}
 
     def has_routes(self):
-        return bool(self.routelist)
+        pass
 
     def get_routes(self, include_static=False):
         if include_static is True:
@@ -41,7 +41,7 @@ class RoutesMapper:
         return self.routelist
 
     def get_route(self, name):
-        return self.routes.get(name)
+        pass
 
     def connect(
         self,
@@ -67,7 +67,7 @@ class RoutesMapper:
         return route
 
     def generate(self, name, kw):
-        return self.routes[name].generate(kw)
+        pass
 
     def __call__(self, request):
         try:
@@ -104,8 +104,7 @@ route_re = re.compile(r'(\{[_a-zA-Z][^{}]*(?:\{[^{}]*\}[^{}]*)*\})')
 
 
 def update_pattern(matchobj):
-    name = matchobj.group(0)
-    return '{%s}' % name[1:]
+    pass
 
 
 def _compile_route(route):
@@ -183,16 +182,7 @@ def _compile_route(route):
     match = re.compile(pattern).match
 
     def matcher(path):
-        m = match(path)
-        if m is None:
-            return None
-        d = {}
-        for k, v in m.groupdict().items():
-            if k == remainder:
-                d[k] = split_path_info(v)
-            else:
-                d[k] = v
-        return d
+        pass
 
     gen = ''.join(gen)
 
@@ -200,29 +190,6 @@ def _compile_route(route):
         return quote_path_segment(v, safe=PATH_SAFE)
 
     def generator(dict):
-        newdict = {}
-        for k, v in dict.items():
-            if v.__class__ is bytes:
-                # url_quote below needs a native string
-                v = v.decode('utf-8')
-
-            if k == remainder:
-                # a stararg argument
-                if is_nonstr_iter(v):
-                    v = '/'.join([q(x) for x in v])  # native
-                else:
-                    if v.__class__ is not str:
-                        v = str(v)
-                    v = q(v)
-            else:
-                if v.__class__ is not str:
-                    v = str(v)
-                v = q(v)
-
-            # at this point, the value will be a native string
-            newdict[k] = v
-
-        result = gen % newdict  # native string result
-        return result
+        pass
 
     return matcher, generator

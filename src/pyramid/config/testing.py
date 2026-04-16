@@ -58,13 +58,7 @@ class TestingConfiguratorMixin:
             Removed ``groupids`` argument and add `identity` argument.
 
         """
-        from pyramid.testing import DummySecurityPolicy
-
-        policy = DummySecurityPolicy(
-            userid, identity, permissive, remember_result, forget_result
-        )
-        self.registry.registerUtility(policy, ISecurityPolicy)
-        return policy
+        pass
 
     def testing_resources(self, resources):
         """Unit/integration testing helper: registers a dictionary of
@@ -80,29 +74,7 @@ class TestingConfiguratorMixin:
         :func:`pyramid.traversal.find_resource` is called with an
         equivalent path string or tuple.
         """
-
-        class DummyTraverserFactory:
-            def __init__(self, context):
-                self.context = context
-
-            def __call__(self, request):
-                path = request.path_info
-                ob = resources[path]
-                traversed = split_path_info(path)
-                return {
-                    'context': ob,
-                    'view_name': '',
-                    'subpath': (),
-                    'traversed': traversed,
-                    'virtual_root': ob,
-                    'virtual_root_path': (),
-                    'root': ob,
-                }
-
-        self.registry.registerAdapter(
-            DummyTraverserFactory, (Interface,), ITraverser
-        )
-        return resources
+        pass
 
     testing_models = testing_resources  # b/w compat
 
@@ -124,14 +96,7 @@ class TestingConfiguratorMixin:
         The default value of ``event_iface`` (``None``) implies a
         subscriber registered for *any* kind of event.
         """
-        event_iface = self.maybe_dotted(event_iface)
-        L = []
-
-        def subscriber(*event):
-            L.extend(event)
-
-        self.add_subscriber(subscriber, event_iface)
-        return L
+        pass
 
     def testing_add_renderer(self, path, renderer=None):
         """Unit/integration testing helper: register a renderer at
@@ -154,23 +119,6 @@ class TestingConfiguratorMixin:
            ``testing_add_template`` (an older name for it).
 
         """
-        from pyramid.testing import DummyRendererFactory
-
-        helper = RendererHelper(name=path, registry=self.registry)
-        factory = self.registry.queryUtility(
-            IRendererFactory, name=helper.type
-        )
-        if not isinstance(factory, DummyRendererFactory):
-            factory = DummyRendererFactory(helper.type, factory)
-            self.registry.registerUtility(
-                factory, IRendererFactory, name=helper.type
-            )
-
-        from pyramid.testing import DummyTemplateRenderer
-
-        if renderer is None:
-            renderer = DummyTemplateRenderer()
-        factory.add(path, renderer)
-        return renderer
+        pass
 
     testing_add_template = testing_add_renderer

@@ -181,13 +181,7 @@ class Router:
 
         See the API for pyramid.request for complete documentation.
         """
-        request.registry = self.registry
-        request.invoke_subrequest = self.invoke_subrequest
-        extensions = self.request_extensions
-        if extensions is not None:
-            apply_request_extensions(request, extensions=extensions)
-        with RequestContext(request):
-            return self.invoke_request(request, _use_tweens=use_tweens)
+        pass
 
     def request_context(self, environ):
         """

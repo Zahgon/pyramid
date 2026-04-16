@@ -15,7 +15,7 @@ NO_PERMISSION_REQUIRED = '__no_permission_required__'
 
 
 def _get_security_policy(request):
-    return request.registry.queryUtility(ISecurityPolicy)
+    pass
 
 
 def remember(request, userid, **kw):
@@ -49,10 +49,7 @@ def remember(request, userid, **kw):
     .. versionchanged:: 1.10
         Removed the deprecated ``principal`` argument.
     """
-    policy = _get_security_policy(request)
-    if policy is None:
-        return []
-    return policy.remember(request, userid, **kw)
+    pass
 
 
 def forget(request, **kw):
@@ -74,10 +71,7 @@ def forget(request, **kw):
     If no :term:`security policy` is in use, this function will
     always return an empty sequence.
     """
-    policy = _get_security_policy(request)
-    if policy is None:
-        return []
-    return policy.forget(request, **kw)
+    pass
 
 
 def principals_allowed_by_permission(context, permission):
@@ -104,13 +98,7 @@ def principals_allowed_by_permission(context, permission):
        function is invoked.
 
     """
-    reg = get_current_registry()
-    policy = reg.queryUtility(IAuthorizationPolicy)
-    if policy is None:
-        from pyramid.authorization import Everyone  # noqa: F811
-
-        return [Everyone]
-    return policy.principals_allowed_by_permission(context, permission)
+    pass
 
 
 deprecated(
@@ -172,7 +160,7 @@ class PermitsResult(int):
     @property
     def msg(self):
         """A string indicating why the result was generated."""
-        return self.s % self.args
+        pass
 
     def __str__(self):
         return self.msg
@@ -221,10 +209,7 @@ class SecurityAPIMixin:
         user is authenticated or there is no :term:`security policy` in effect.
 
         """
-        policy = _get_security_policy(self)
-        if policy is None:
-            return None
-        return policy.identity(self)
+        pass
 
     @property
     def authenticated_userid(self):
@@ -239,15 +224,12 @@ class SecurityAPIMixin:
            ignoring old-style :term:`authentication policy`.
 
         """
-        policy = _get_security_policy(self)
-        if policy is None:
-            return None
-        return policy.authenticated_userid(self)
+        pass
 
     @property
     def is_authenticated(self):
         """Return ``True`` if a user is authenticated for this request."""
-        return self.authenticated_userid is not None
+        pass
 
     def has_permission(self, permission, context=None):
         """Given a permission and an optional context, returns an instance of
@@ -269,12 +251,7 @@ class SecurityAPIMixin:
                   :class:`pyramid.security.Denied`.
 
         """
-        if context is None:
-            context = self.context
-        policy = _get_security_policy(self)
-        if policy is None:
-            return Allowed('No security policy in use.')
-        return policy.permits(self, context, permission)
+        pass
 
 
 class AuthenticationAPIMixin:
@@ -299,13 +276,7 @@ class AuthenticationAPIMixin:
         associated with the userid exists in persistent storage.
 
         """
-        security = _get_security_policy(self)
-        if security is None:
-            return None
-        if isinstance(security, LegacySecurityPolicy):
-            authn = security._get_authn_policy(self)
-            return authn.unauthenticated_userid(self)
-        return security.authenticated_userid(self)
+        pass
 
     unauthenticated_userid = deprecated(
         unauthenticated_userid,
@@ -330,13 +301,7 @@ class AuthenticationAPIMixin:
         :data:`pyramid.authorization.Everyone` principal.
 
         """
-        from pyramid.authorization import Everyone  # noqa: F811
-
-        security = _get_security_policy(self)
-        if security is not None and isinstance(security, LegacySecurityPolicy):
-            authn = security._get_authn_policy(self)
-            return authn.effective_principals(self)
-        return [Everyone]
+        pass
 
     effective_principals = deprecated(
         effective_principals,
@@ -357,36 +322,25 @@ class LegacySecurityPolicy:
     """
 
     def _get_authn_policy(self, request):
-        return request.registry.getUtility(IAuthenticationPolicy)
+        pass
 
     def _get_authz_policy(self, request):
-        return request.registry.getUtility(IAuthorizationPolicy)
+        pass
 
     def identity(self, request):
-        return self.authenticated_userid(request)
+        pass
 
     def authenticated_userid(self, request):
-        authn = self._get_authn_policy(request)
-        return authn.authenticated_userid(request)
+        pass
 
     def remember(self, request, userid, **kw):
-        authn = self._get_authn_policy(request)
-        return authn.remember(request, userid, **kw)
+        pass
 
     def forget(self, request, **kw):
-        if kw:
-            raise ValueError(
-                'Legacy authentication policies do not support keyword '
-                'arguments for `forget`'
-            )
-        authn = self._get_authn_policy(request)
-        return authn.forget(request)
+        pass
 
     def permits(self, request, context, permission):
-        authn = self._get_authn_policy(request)
-        authz = self._get_authz_policy(request)
-        principals = authn.effective_principals(request)
-        return authz.permits(context, principals, permission)
+        pass
 
 
 Everyone = 'system.Everyone'

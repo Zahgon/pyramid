@@ -228,8 +228,7 @@ class PServeCommand:
             else:
 
                 def open_browser():
-                    time.sleep(1)
-                    webbrowser.open(url)
+                    pass
 
                 t = threading.Thread(target=open_browser)
                 t.daemon = True
@@ -292,13 +291,7 @@ class PServeCommand:
 
 # For paste.deploy server instantiation (egg:pyramid#wsgiref)
 def wsgiref_server_runner(wsgi_app, global_conf, **kw):  # pragma: no cover
-    from wsgiref.simple_server import make_server
-
-    host = kw.get('host', '0.0.0.0')
-    port = int(kw.get('port', 8080))
-    server = make_server(host, port, wsgi_app)
-    print(f'Starting HTTP server on http://{host}:{port}', file=sys.stderr)
-    server.serve_forever()
+    pass
 
 
 # For paste.deploy server instantiation (egg:pyramid#cherrypy)
@@ -374,62 +367,7 @@ def cherrypy_server_runner(
 
         The timeout in seconds for accepted connections.
     """
-    is_ssl = False
-    if ssl_pem:
-        port = port or 4443
-        is_ssl = True
-
-    if not port:
-        if ':' in host:
-            host, port = host.split(':', 1)
-        else:
-            port = 8080
-    bind_addr = (host, int(port))
-
-    kwargs = {}
-    for var_name in ('numthreads', 'max', 'request_queue_size', 'timeout'):
-        var = locals()[var_name]
-        if var is not None:
-            kwargs[var_name] = int(var)
-
-    try:
-        from cheroot.wsgi import Server as WSGIServer
-    except ImportError:
-        from cherrypy.wsgiserver import CherryPyWSGIServer as WSGIServer
-
-    server = WSGIServer(bind_addr, app, server_name=server_name, **kwargs)
-    if ssl_pem is not None:
-        # creates wsgiserver.ssl_builtin as side-effect
-        try:
-            from cheroot.server import get_ssl_adapter_class
-            from cheroot.ssl.builtin import BuiltinSSLAdapter
-        except ImportError:
-            from cherrypy.wsgiserver import get_ssl_adapter_class
-            from cherrypy.wsgiserver.ssl_builtin import BuiltinSSLAdapter
-        get_ssl_adapter_class()
-        server.ssl_adapter = BuiltinSSLAdapter(ssl_pem, ssl_pem)
-
-    if protocol_version:
-        server.protocol = protocol_version
-
-    try:
-        protocol = is_ssl and 'https' or 'http'
-        if host == '0.0.0.0':
-            print(
-                'serving on 0.0.0.0:%s view at %s://127.0.0.1:%s'
-                % (port, protocol, port),
-                file=sys.stderr,
-            )
-        else:
-            print(
-                f'serving on {protocol}://{host}:{port}',
-                file=sys.stderr,
-            )
-        server.start()
-    except (KeyboardInterrupt, SystemExit):
-        server.stop()
-
-    return server
+    pass
 
 
 if __name__ == '__main__':  # pragma: no cover

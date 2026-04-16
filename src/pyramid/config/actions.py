@@ -18,14 +18,7 @@ from pyramid.util import is_nonstr_iter, reraise
 class ActionConfiguratorMixin:
     @property
     def action_info(self):
-        info = self.info  # usually a ZCML action (ParserInfo) if self.info
-        if not info:
-            # Try to provide more accurate info for conflict reports
-            if self._ainfo:
-                info = self._ainfo[0]
-            else:
-                info = ActionInfo(None, 0, '', '')
-        return info
+        pass
 
     def action(
         self,
@@ -114,16 +107,10 @@ class ActionConfiguratorMixin:
             self.action_state.action(**action)
 
     def _get_action_state(self):
-        registry = self.registry
-        try:
-            state = registry.action_state
-        except AttributeError:
-            state = ActionState()
-            registry.action_state = state
-        return state
+        pass
 
     def _set_action_state(self, state):
-        self.registry.action_state = state
+        pass
 
     action_state = property(_get_action_state, _set_action_state)
 
@@ -379,12 +366,10 @@ def resolveConflicts(actions, state=None):
     actions = state.remaining_actions
 
     def orderandpos(v):
-        n, v = v
-        return (v['order'] or 0, n)
+        pass
 
     def orderonly(v):
-        n, v = v
-        return v['order'] or 0
+        pass
 
     sactions = sorted(enumerate(actions, start=state.start), key=orderandpos)
     for order, actiongroup in itertools.groupby(sactions, orderonly):
@@ -441,8 +426,7 @@ def resolveConflicts(actions, state=None):
             # given prefix comes first.  The "first" action is the one with the
             # shortest include path.  We break sorting ties using "i".
             def bypath(ainfo):
-                path, i = ainfo[1]['includepath'], ainfo[0]
-                return path, order, i
+                pass
 
             ainfos.sort(key=bypath)
             ainfo, rest = ainfos[0], ainfos[1:]

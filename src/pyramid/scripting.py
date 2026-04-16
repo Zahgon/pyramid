@@ -18,18 +18,7 @@ def get_root(app, request=None):
     will be constructed using the registry's :term:`Request Factory`
     via the :meth:`pyramid.interfaces.IRequestFactory.blank` method.
     """
-    registry = app.registry
-    if request is None:
-        request = _make_request('/', registry)
-    request.registry = registry
-    ctx = RequestContext(request)
-    ctx.begin()
-
-    def closer():
-        ctx.end()
-
-    root = app.root_factory(request)
-    return root, closer
+    pass
 
 
 def prepare(request=None, registry=None):

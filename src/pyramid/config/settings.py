@@ -28,13 +28,7 @@ class SettingsConfiguratorMixin:
         :meth:`pyramid.config.Configurator.get_settings` API) and
         which uses values from that API.
         """
-        if settings is None:
-            settings = {}
-        utility = self.registry.settings
-        if utility is None:
-            utility = self._set_settings(settings)
-        utility.update(settings)
-        utility.update(kw)
+        pass
 
     def get_settings(self):
         """

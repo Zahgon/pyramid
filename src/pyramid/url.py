@@ -242,31 +242,7 @@ class URLMethodsMixin:
            empty string) they will not be included in the generated url.
 
         """
-        try:
-            reg = self.registry
-        except AttributeError:
-            reg = get_current_registry()  # b/c
-        mapper = reg.getUtility(IRoutesMapper)
-        route = mapper.get_route(route_name)
-
-        if route is None:
-            raise KeyError('No such route named %s' % route_name)
-
-        if route.pregenerator is not None:
-            elements, kw = route.pregenerator(self, elements, kw)
-
-        app_url, qs, anchor = parse_url_overrides(self, kw)
-
-        path = route.generate(kw)  # raises KeyError if generate fails
-
-        if elements:
-            suffix = _join_elements(elements)
-            if not path.endswith('/'):
-                suffix = '/' + suffix
-        else:
-            suffix = ''
-
-        return app_url + path + suffix + qs + anchor
+        pass
 
     def route_path(self, route_name, *elements, **kw):
         """
@@ -296,8 +272,7 @@ class URLMethodsMixin:
            ``**kw`` values to ``route_path`` will be ignored.
 
         """
-        kw['_app_url'] = self.script_name
-        return self.route_url(route_name, *elements, **kw)
+        pass
 
     def resource_url(self, resource, *elements, **kw):
         """
@@ -509,67 +484,7 @@ class URLMethodsMixin:
            If ``query`` or ``anchor`` are falsey (such as ``None`` or an
            empty string) they will not be included in the generated url.
         """
-        try:
-            reg = self.registry
-        except AttributeError:
-            reg = get_current_registry()  # b/c
-
-        url_adapter = reg.queryMultiAdapter((resource, self), IResourceURL)
-        if url_adapter is None:
-            url_adapter = ResourceURL(resource, self)
-
-        virtual_path = getattr(url_adapter, 'virtual_path', None)
-
-        urlkw = {}
-        for name in ('app_url', 'scheme', 'host', 'port', 'query', 'anchor'):
-            val = kw.get(name, None)
-            if val is not None:
-                urlkw['_' + name] = val
-
-        if 'route_name' in kw:
-            route_name = kw['route_name']
-            remainder = getattr(url_adapter, 'virtual_path_tuple', None)
-            if remainder is None:
-                # older user-supplied IResourceURL adapter without 1.5
-                # virtual_path_tuple
-                remainder = tuple(url_adapter.virtual_path.split('/'))
-            remainder_name = kw.get('route_remainder_name', 'traverse')
-            urlkw[remainder_name] = remainder
-
-            if 'route_kw' in kw:
-                route_kw = kw.get('route_kw')
-                if route_kw is not None:
-                    urlkw.update(route_kw)
-
-            return self.route_url(route_name, *elements, **urlkw)
-
-        app_url, qs, anchor = parse_url_overrides(self, urlkw)
-
-        resource_url = None
-        local_url = getattr(resource, '__resource_url__', None)
-
-        if local_url is not None:
-            # the resource handles its own url generation
-            d = dict(
-                virtual_path=virtual_path,
-                physical_path=url_adapter.physical_path,
-                app_url=app_url,
-            )
-
-            # allow __resource_url__ to punt by returning None
-            resource_url = local_url(self, d)
-
-        if resource_url is None:
-            # the resource did not handle its own url generation or the
-            # __resource_url__ function returned None
-            resource_url = app_url + virtual_path
-
-        if elements:
-            suffix = _join_elements(elements)
-        else:
-            suffix = ''
-
-        return resource_url + suffix + qs + anchor
+        pass
 
     model_url = resource_url  # b/w compat forever
 
@@ -595,8 +510,7 @@ class URLMethodsMixin:
            ``route_path`` will be ignored.  ``scheme``, ``host``, and
            ``port`` are also ignored.
         """
-        kw['app_url'] = self.script_name
-        return self.resource_url(resource, *elements, **kw)
+        pass
 
     def static_url(self, path, **kw):
         """
@@ -628,24 +542,7 @@ class URLMethodsMixin:
         definition cannot be found which matches the path specification.
 
         """
-        if not os.path.isabs(path):
-            if ':' not in path:
-                # if it's not a package:relative/name and it's not an
-                # /absolute/path it's a relative/path; this means its relative
-                # to the package in which the caller's module is defined.
-                package = caller_package()
-                path = f'{package.__name__}:{path}'
-
-        try:
-            reg = self.registry
-        except AttributeError:
-            reg = get_current_registry()  # b/c
-
-        info = reg.queryUtility(IStaticURLInfo)
-        if info is None:
-            raise ValueError('No static URL definition matching %s' % path)
-
-        return info.generate(path, self, **kw)
+        pass
 
     def static_path(self, path, **kw):
         """
@@ -673,16 +570,7 @@ class URLMethodsMixin:
            way. As a result, any ``_app_url`` passed within the ``**kw`` values
            to ``static_path`` will be ignored.
         """
-        if not os.path.isabs(path):
-            if ':' not in path:
-                # if it's not a package:relative/name and it's not an
-                # /absolute/path it's a relative/path; this means its relative
-                # to the package in which the caller's module is defined.
-                package = caller_package()
-                path = f'{package.__name__}:{path}'
-
-        kw['_app_url'] = self.script_name
-        return self.static_url(path, **kw)
+        pass
 
     def current_route_url(self, *elements, **kw):
         """
@@ -730,21 +618,7 @@ class URLMethodsMixin:
         Will return string like: ``/foo/view/5``.
 
         """
-        if '_route_name' in kw:
-            route_name = kw.pop('_route_name')
-        else:
-            route = getattr(self, 'matched_route', None)
-            route_name = getattr(route, 'name', None)
-            if route_name is None:
-                raise ValueError('Current request matches no route')
-
-        if '_query' not in kw:
-            kw['_query'] = self.GET
-
-        newkw = {}
-        newkw.update(self.matchdict)
-        newkw.update(kw)
-        return self.route_url(route_name, *elements, **newkw)
+        pass
 
     def current_route_path(self, *elements, **kw):
         """
@@ -776,8 +650,7 @@ class URLMethodsMixin:
            way. As a result, any ``_app_url`` passed within the ``**kw``
            values to ``current_route_path`` will be ignored.
         """
-        kw['_app_url'] = self.script_name
-        return self.current_route_url(*elements, **kw)
+        pass
 
 
 def route_url(route_name, request, *elements, **kw):
@@ -789,7 +662,7 @@ def route_url(route_name, request, *elements, **kw):
 
     See :meth:`pyramid.request.Request.route_url` for more information.
     """
-    return request.route_url(route_name, *elements, **kw)
+    pass
 
 
 def route_path(route_name, request, *elements, **kw):
@@ -801,7 +674,7 @@ def route_path(route_name, request, *elements, **kw):
 
     See :meth:`pyramid.request.Request.route_path` for more information.
     """
-    return request.route_path(route_name, *elements, **kw)
+    pass
 
 
 def resource_url(resource, request, *elements, **kw):
@@ -813,7 +686,7 @@ def resource_url(resource, request, *elements, **kw):
 
     See :meth:`pyramid.request.Request.resource_url` for more information.
     """
-    return request.resource_url(resource, *elements, **kw)
+    pass
 
 
 model_url = resource_url  # b/w compat (forever)
@@ -828,14 +701,7 @@ def static_url(path, request, **kw):
 
     See :meth:`pyramid.request.Request.static_url` for more information.
     """
-    if not os.path.isabs(path):
-        if ':' not in path:
-            # if it's not a package:relative/name and it's not an
-            # /absolute/path it's a relative/path; this means its relative
-            # to the package in which the caller's module is defined.
-            package = caller_package()
-            path = f'{package.__name__}:{path}'
-    return request.static_url(path, **kw)
+    pass
 
 
 def static_path(path, request, **kw):
@@ -847,14 +713,7 @@ def static_path(path, request, **kw):
 
     See :meth:`pyramid.request.Request.static_path` for more information.
     """
-    if not os.path.isabs(path):
-        if ':' not in path:
-            # if it's not a package:relative/name and it's not an
-            # /absolute/path it's a relative/path; this means its relative
-            # to the package in which the caller's module is defined.
-            package = caller_package()
-            path = f'{package.__name__}:{path}'
-    return request.static_path(path, **kw)
+    pass
 
 
 def current_route_url(request, *elements, **kw):
@@ -867,7 +726,7 @@ def current_route_url(request, *elements, **kw):
     See :meth:`pyramid.request.Request.current_route_url` for more
     information.
     """
-    return request.current_route_url(*elements, **kw)
+    pass
 
 
 def current_route_path(request, *elements, **kw):
@@ -880,11 +739,9 @@ def current_route_path(request, *elements, **kw):
     See :meth:`pyramid.request.Request.current_route_path` for more
     information.
     """
-    return request.current_route_path(*elements, **kw)
+    pass
 
 
 @lru_cache(1000)
 def _join_elements(elements):
-    return '/'.join(
-        [quote_path_segment(s, safe=PATH_SEGMENT_SAFE) for s in elements]
-    )
+    pass

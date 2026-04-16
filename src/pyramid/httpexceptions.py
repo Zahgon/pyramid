@@ -142,14 +142,7 @@ from pyramid.util import text_
 
 
 def _no_escape(value):
-    if value is None:
-        return ''
-    if not isinstance(value, str):
-        if isinstance(value, bytes):
-            value = text_(value, 'utf-8')
-        else:
-            value = str(value)
-    return value
+    pass
 
 
 @implementer(IExceptionResponse)
@@ -324,7 +317,7 @@ ${body}''')
     @property
     def wsgi_response(self):
         # bw compat only
-        return self
+        pass
 
     exception = wsgi_response  # bw compat only
 
@@ -1317,8 +1310,7 @@ def exception_response(status_code, **kw):
 
     The values passed as ``kw`` are provided to the exception's constructor.
     """
-    exc = status_map[status_code](**kw)
-    return exc
+    pass
 
 
 def default_exceptionresponse_view(context, request):

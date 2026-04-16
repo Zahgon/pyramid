@@ -33,11 +33,11 @@ class TemplateContext:
 class CallbackMethodsMixin:
     @reify
     def finished_callbacks(self):
-        return deque()
+        pass
 
     @reify
     def response_callbacks(self):
-        return deque()
+        pass
 
     def add_response_callback(self, callback):
         """
@@ -184,7 +184,7 @@ class Request(
     def tmpl_context(self):
         # docs-deprecated template context for Pylons-like apps; do not
         # remove.
-        return TemplateContext()
+        pass
 
     @reify
     def session(self):
@@ -192,13 +192,7 @@ class Request(
         request.  If a :term:`session factory` has not been registered
         during application configuration, a
         :class:`pyramid.exceptions.ConfigurationError` will be raised"""
-        factory = self.registry.queryUtility(ISessionFactory)
-        if factory is None:
-            raise AttributeError(
-                'No session factory registered '
-                '(see the Sessions chapter of the Pyramid documentation)'
-            )
-        return factory(self)
+        pass
 
     @reify
     def response(self):
@@ -214,19 +208,12 @@ class Request(
         right" attributes (e.g. by calling ``request.response.set_cookie()``)
         within a view that uses a renderer.  Mutations to this response object
         will be preserved in the response sent to the client."""
-        response_factory = _get_response_factory(self.registry)
-        return response_factory(self)
+        pass
 
     def is_response(self, ob):
         """Return ``True`` if the object passed as ``ob`` is a valid
         response object, ``False`` otherwise."""
-        if ob.__class__ is Response:
-            return True
-        registry = self.registry
-        adapted = registry.queryAdapterOrSelf(ob, IResponse)
-        if adapted is None:
-            return False
-        return adapted is ob
+        pass
 
 
 def route_request_iface(name, bases=()):
@@ -251,11 +238,7 @@ def route_request_iface(name, bases=()):
 
 
 def add_global_response_headers(request, headerlist):
-    def add_headers(request, response):
-        for k, v in headerlist:
-            response.headerlist.append((k, v))
-
-    request.add_response_callback(add_headers)
+    pass
 
 
 def call_app_with_subpath_as_path_info(request, app):
@@ -442,12 +425,7 @@ class RequestLocalCache:
         Update the cache with a new value.
 
         """
-        already_set = request in self._store
-        self._store[request] = value
-
-        # avoid registering the callback more than once
-        if not already_set:
-            request.add_finished_callback(self._store.pop)
+        pass
 
     def clear(self, request):
         """

@@ -18,10 +18,7 @@ def main(argv=sys.argv, quiet=False):
 
 
 def python_shell_runner(env, help, interact=interact):
-    cprt = 'Type "help" for more information.'
-    banner = f"Python {sys.version} on {sys.platform}\n{cprt}"
-    banner += '\n\n' + help + '\n'
-    interact(banner, local=env)
+    pass
 
 
 class PShellCommand:
@@ -259,10 +256,7 @@ class PShellCommand:
             def order(x):
                 # invert weight to reverse sort the list
                 # (closer to the front is higher priority)
-                try:
-                    return preferred_shells.index(x[0].lower()) - max_weight
-                except ValueError:
-                    return 1
+                pass
 
             sorted_shells = sorted(shells.items(), key=order)
 

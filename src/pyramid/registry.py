@@ -66,9 +66,7 @@ class Registry(Components, dict):
         return self.__name__
 
     def registerSubscriptionAdapter(self, *arg, **kw):
-        result = Components.registerSubscriptionAdapter(self, *arg, **kw)
-        self.has_listeners = True
-        return result
+        pass
 
     def registerSelfAdapter(
         self, required=None, provided=None, name='', info='', event=True
@@ -88,9 +86,7 @@ class Registry(Components, dict):
         # queryAdapter analogue which returns the object if it implements
         # the interface, otherwise it will return an adaptation to the
         # interface
-        if not interface.providedBy(object):
-            return self.queryAdapter(object, interface, default=default)
-        return object
+        pass
 
     def registerHandler(self, *arg, **kw):
         result = Components.registerHandler(self, *arg, **kw)
@@ -105,7 +101,7 @@ class Registry(Components, dict):
     # backwards compatibility for code that wants to look up a settings
     # object via ``registry.getUtility(ISettings)``
     def _get_settings(self):
-        return self._settings
+        pass
 
     def _set_settings(self, settings):
         self.registerUtility(settings, ISettings)
@@ -134,31 +130,13 @@ class Introspector:
         return intr
 
     def get_category(self, category_name, default=None, sort_key=None):
-        if sort_key is None:
-            sort_key = operator.attrgetter('order')
-        category = self._categories.get(category_name)
-        if category is None:
-            return default
-        values = category.values()
-        values = sorted(set(values), key=sort_key)
-        return [
-            {'introspectable': intr, 'related': self.related(intr)}
-            for intr in values
-        ]
+        pass
 
     def categorized(self, sort_key=None):
-        L = []
-        for category_name in self.categories():
-            L.append(
-                (
-                    category_name,
-                    self.get_category(category_name, sort_key=sort_key),
-                )
-            )
-        return L
+        pass
 
     def categories(self):
-        return sorted(self._categories.keys())
+        pass
 
     def remove(self, category_name, discriminator):
         intr = self.get(category_name, discriminator)
@@ -191,12 +169,7 @@ class Introspector:
                 L.append(y)
 
     def unrelate(self, *pairs):
-        introspectables = self._get_intrs_by_pairs(pairs)
-        relatable = ((x, y) for x in introspectables for y in introspectables)
-        for x, y in relatable:
-            L = self._refs.get(x, [])
-            if y in L:
-                L.remove(y)
+        pass
 
     def related(self, intr):
         category_name, discriminator = intr.category_name, intr.discriminator
@@ -222,15 +195,14 @@ class Introspectable(dict):
         self._relations.append((True, category_name, discriminator))
 
     def unrelate(self, category_name, discriminator):
-        self._relations.append((False, category_name, discriminator))
+        pass
 
     def _assert_resolved(self):
-        assert undefer(self.discriminator) is self.discriminator
+        pass
 
     @property
     def discriminator_hash(self):
-        self._assert_resolved()
-        return hash(self.discriminator)
+        pass
 
     def __hash__(self):
         self._assert_resolved()
@@ -275,9 +247,7 @@ class Deferred:
 
     @reify
     def value(self):
-        result = self.func()
-        del self.func
-        return result
+        pass
 
     def resolve(self):
         return self.value

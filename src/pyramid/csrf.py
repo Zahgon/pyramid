@@ -141,7 +141,7 @@ class CookieCSRFStoragePolicy:
         request.cookies[self.cookie_name] = token
 
         def set_cookie(request, response):
-            self.cookie_profile.set_cookies(response, token)
+            pass
 
         request.add_response_callback(set_cookie)
         return token

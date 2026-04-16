@@ -141,35 +141,7 @@ class static_view:
         The returned file is not guaranteed to exist.
 
         """
-        if self.use_subpath:
-            path_tuple = request.subpath
-        else:
-            path_tuple = traversal_path_info(request.path_info)
-        path = _secure_path(path_tuple)
-
-        if path is None:
-            raise HTTPNotFound('Out of bounds: %s' % request.url)
-
-        # normalize asset spec or fs path into resource_path
-        if self.package_name:  # package resource
-            resource_path = '{}/{}'.format(self.docroot.rstrip('/'), path)
-            if resource_isdir(self.package_name, resource_path):
-                if not request.path_url.endswith('/'):
-                    raise self.add_slash_redirect(request)
-                resource_path = '{}/{}'.format(
-                    resource_path.rstrip('/'),
-                    self.index,
-                )
-
-        else:  # filesystem file
-            # os.path.normpath converts / to \ on windows
-            resource_path = normcase(normpath(join(self.norm_docroot, path)))
-            if isdir(resource_path):
-                if not request.path_url.endswith('/'):
-                    raise self.add_slash_redirect(request)
-                resource_path = join(resource_path, self.index)
-
-        return resource_path
+        pass
 
     def find_resource_path(self, name):
         """
@@ -177,81 +149,18 @@ class static_view:
         exist.
 
         """
-        if self.package_name:
-            if resource_exists(self.package_name, name):
-                return resource_filename(self.package_name, name)
-
-        elif exists(name):
-            return name
+        pass
 
     def get_possible_files(self, resource_name):
         """Return a sorted list of ``(size, encoding, path)`` entries."""
-        result = self.filemap.get(resource_name)
-        if result is not None:
-            return result
-
-        # XXX we could put a lock around this work but worst case scenario a
-        # couple requests scan the disk for files at the same time and then
-        # the cache is set going forward so do not bother
-        result = []
-
-        # add the identity
-        path = self.find_resource_path(resource_name)
-        if path:
-            result.append((path, None))
-
-        # add each file we find for the supported encodings
-        # we don't mind adding multiple files for the same encoding if there
-        # are copies with different extensions because we sort by size so the
-        # smallest is always found first and the rest ignored
-        for encoding, extensions in self.content_encodings.items():
-            for ext in extensions:
-                encoded_name = resource_name + ext
-                path = self.find_resource_path(encoded_name)
-                if path:
-                    result.append((path, encoding))
-
-        # sort the files by size, smallest first
-        result.sort(key=lambda x: getsize(x[0]))
-
-        # only cache the results if reload is disabled
-        if not self.reload:
-            self.filemap[resource_name] = result
-        return result
+        pass
 
     def find_best_match(self, request, files):
         """Return ``(path | None, encoding)``."""
-        # if the client did not specify encodings then assume only the
-        # identity is acceptable
-        if not request.accept_encoding:
-            identity_path = next(
-                (path for path, encoding in files if encoding is None),
-                None,
-            )
-            return identity_path, None
-
-        # find encodings the client will accept
-        acceptable_encodings = {
-            x[0]
-            for x in request.accept_encoding.acceptable_offers(
-                [encoding for path, encoding in files if encoding is not None]
-            )
-        }
-        acceptable_encodings.add(None)
-
-        # return the smallest file from the acceptable encodings
-        # we know that files is sorted by size, smallest first
-        for path, encoding in files:
-            if encoding in acceptable_encodings:
-                return path, encoding
-        return None, None
+        pass
 
     def add_slash_redirect(self, request):
-        url = request.path_url + '/'
-        qs = request.query_string
-        if qs:
-            url = url + '?' + qs
-        return HTTPMovedPermanently(url)
+        pass
 
 
 def _compile_content_encodings(encodings):
@@ -260,27 +169,18 @@ def _compile_content_encodings(encodings):
     ``(encoding) -> [file extensions]``.
 
     """
-    result = {}
-    for ext, encoding in mimetypes.encodings_map.items():
-        if encoding in encodings:
-            result.setdefault(encoding, []).append(ext)
-    return result
+    pass
 
 
 def _add_vary(response, option):
-    vary = response.vary or []
-    if not any(x.lower() == option.lower() for x in vary):
-        vary.append(option)
-    response.vary = vary
+    pass
 
 
 _invalid_element_chars = {'/', os.sep, '\x00'}
 
 
 def _contains_invalid_element_char(item):
-    for invalid_element_char in _invalid_element_chars:
-        if invalid_element_char in item:
-            return True
+    pass
 
 
 _has_insecure_pathelement = {'..', '.', ''}.intersection
@@ -288,15 +188,7 @@ _has_insecure_pathelement = {'..', '.', ''}.intersection
 
 @lru_cache(1000)
 def _secure_path(path_tuple):
-    if _has_insecure_pathelement(path_tuple):
-        # belt-and-suspenders security; this should never be true
-        # unless someone screws up the traversal_path code
-        # (request.subpath is computed via traversal_path too)
-        return None
-    if any([_contains_invalid_element_char(item) for item in path_tuple]):
-        return None
-    encoded = '/'.join(path_tuple)  # will be unicode
-    return encoded
+    pass
 
 
 class QueryStringCacheBuster:
@@ -345,7 +237,7 @@ class QueryStringConstantCacheBuster(QueryStringCacheBuster):
         self._token = token
 
     def tokenize(self, request, subpath, kw):
-        return self._token
+        pass
 
 
 class ManifestCacheBuster:
@@ -405,8 +297,7 @@ class ManifestCacheBuster:
             self._manifest = self.get_manifest()
 
     def get_manifest(self):
-        with open(self.manifest_path, 'rb') as fp:
-            return self.parse_manifest(fp.read())
+        pass
 
     def parse_manifest(self, content):
         """
@@ -418,19 +309,12 @@ class ManifestCacheBuster:
         dictionary.
 
         """
-        return json.loads(content.decode('utf-8'))
+        pass
 
     @property
     def manifest(self):
         """The current manifest dictionary."""
-        if self.reload:
-            if not self.exists(self.manifest_path):
-                return {}
-            mtime = self.getmtime(self.manifest_path)
-            if self._mtime is None or mtime > self._mtime:
-                self._manifest = self.get_manifest()
-                self._mtime = mtime
-        return self._manifest
+        pass
 
     def __call__(self, request, subpath, kw):
         subpath = self.manifest.get(subpath, subpath)

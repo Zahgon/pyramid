@@ -349,105 +349,10 @@ class Configurator(
         policies, renderers, a debug logger, a locale negotiator, and various
         other settings using the configurator's current registry, as per the
         descriptions in the Configurator constructor."""
-
-        registry = self.registry
-
-        self._fix_registry()
-
-        self._set_settings(settings)
-
-        if isinstance(debug_logger, str):
-            debug_logger = logging.getLogger(debug_logger)
-
-        if debug_logger is None:
-            debug_logger = logging.getLogger(self.package_name)
-
-        registry.registerUtility(debug_logger, IDebugLogger)
-
-        self.add_default_response_adapters()
-        self.add_default_renderers()
-        self.add_default_accept_view_order()
-        self.add_default_view_predicates()
-        self.add_default_view_derivers()
-        self.add_default_route_predicates()
-        self.add_default_tweens()
-        self.add_default_security()
-
-        if exceptionresponse_view is not None:
-            exceptionresponse_view = self.maybe_dotted(exceptionresponse_view)
-            self.add_view(exceptionresponse_view, context=IExceptionResponse)
-            self.add_view(
-                exceptionresponse_view, context=WebobWSGIHTTPException
-            )
-
-        # commit below because:
-        #
-        # - the default exceptionresponse_view requires the superdefault view
-        #   mapper, so we need to configure it before adding
-        #   default_view_mapper
-        #
-        # - superdefault renderers should be overrideable without requiring
-        #   the user to commit before calling config.add_renderer
-
-        self.commit()
-
-        # self.commit() should not be called within this method after this
-        # point because the following registrations should be treated as
-        # analogues of methods called by the user after configurator
-        # construction.  Rationale: user-supplied implementations should be
-        # preferred rather than add-on author implementations with the help of
-        # automatic conflict resolution.
-
-        if authentication_policy and not authorization_policy:
-            authorization_policy = ACLAuthorizationPolicy()  # default
-
-        if authorization_policy:
-            self.set_authorization_policy(authorization_policy)
-
-        if authentication_policy:
-            self.set_authentication_policy(authentication_policy)
-
-        if security_policy:
-            self.set_security_policy(security_policy)
-
-        if default_view_mapper is not None:
-            self.set_view_mapper(default_view_mapper)
-
-        if renderers:
-            for name, renderer in renderers:
-                self.add_renderer(name, renderer)
-
-        if root_factory is not None:
-            self.set_root_factory(root_factory)
-
-        if locale_negotiator:
-            self.set_locale_negotiator(locale_negotiator)
-
-        if request_factory:
-            self.set_request_factory(request_factory)
-
-        if response_factory:
-            self.set_response_factory(response_factory)
-
-        if default_permission:
-            self.set_default_permission(default_permission)
-
-        if session_factory is not None:
-            self.set_session_factory(session_factory)
-
-        tweens = aslist(registry.settings.get('pyramid.tweens', []))
-        for factory in tweens:
-            self._add_tween(factory, explicit=True)
-
-        includes = aslist(registry.settings.get('pyramid.includes', []))
-        for inc in includes:
-            self.include(inc)
+        pass
 
     def _make_spec(self, path_or_spec):
-        package, filename = resolve_asset_spec(path_or_spec, self.package_name)
-        if package is None:
-            return filename  # absolute filename
-        return f'{package}:{filename}'
+        pass
 
     def _fix_registry(self):
         """Fix up a ZCA component registry that is not a
@@ -470,11 +375,7 @@ class Configurator(
         if not hasattr(_registry, 'queryAdapterOrSelf'):
 
             def queryAdapterOrSelf(object, interface, default=None):
-                if not interface.providedBy(object):
-                    return _registry.queryAdapter(
-                        object, interface, default=default
-                    )
-                return object
+                pass
 
             _registry.queryAdapterOrSelf = queryAdapterOrSelf
 
@@ -507,17 +408,13 @@ class Configurator(
     # API
 
     def _get_introspector(self):
-        introspector = getattr(self.registry, 'introspector', _marker)
-        if introspector is _marker:
-            introspector = Introspector()
-            self._set_introspector(introspector)
-        return introspector
+        pass
 
     def _set_introspector(self, introspector):
-        self.registry.introspector = introspector
+        pass
 
     def _del_introspector(self):
-        del self.registry.introspector
+        pass
 
     introspector = property(
         _get_introspector, _set_introspector, _del_introspector
@@ -693,11 +590,7 @@ class Configurator(
         ``add_directive`` does not participate in conflict detection, and
         later calls to ``add_directive`` will override earlier calls.
         """
-        name = get_callable_name(name)
-        c = self.maybe_dotted(directive)
-        if not hasattr(self.registry, '_directives'):
-            self.registry._directives = {}
-        self.registry._directives[name] = (c, action_wrap)
+        pass
 
     def __getattr__(self, name):
         # allow directive extension names to work
@@ -748,9 +641,7 @@ class Configurator(
         when generating an absolute asset specification.  If the
         provided ``relative_spec`` argument is already absolute, or if
         the ``relative_spec`` is not a string, it is simply returned."""
-        if not isinstance(relative_spec, str):
-            return relative_spec
-        return self._make_spec(relative_spec)
+        pass
 
     absolute_resource_spec = absolute_asset_spec  # b/w compat forever
 

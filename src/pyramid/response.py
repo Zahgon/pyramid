@@ -92,7 +92,7 @@ class FileIter:
         return val
 
     def close(self):
-        self.file.close()
+        pass
 
 
 class response_adapter:

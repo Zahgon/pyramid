@@ -22,12 +22,7 @@ def inside(resource1, resource2):
     if its parent (or one of its parent's parents, etc.) is an
     ancestor.
     """
-    while resource1 is not None:
-        if resource1 is resource2:
-            return True
-        resource1 = resource1.__parent__
-
-    return False
+    pass
 
 
 def lineage(resource):

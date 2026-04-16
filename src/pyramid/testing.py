@@ -52,21 +52,19 @@ class DummySecurityPolicy:
         self.forget_result = forget_result
 
     def identity(self, request):
-        return self._identity
+        pass
 
     def authenticated_userid(self, request):
-        return self.userid
+        pass
 
     def permits(self, request, context, permission):
-        return self.permissive
+        pass
 
     def remember(self, request, userid, **kw):
-        self.remembered = userid
-        return self.remember_result
+        pass
 
     def forget(self, request, **kw):
-        self.forgotten = True
-        return self.forget_result
+        pass
 
 
 class DummyTemplateRenderer:
@@ -87,16 +85,15 @@ class DummyTemplateRenderer:
     # but mutates our internals instead.  When all you read is the
     # source code, *everything* is an API!
     def _get_string_response(self):
-        return self._string_response
+        pass
 
     def _set_string_response(self, response):
-        self._string_response = response
-        self._implementation.response = response
+        pass
 
     string_response = property(_get_string_response, _set_string_response)
 
     def implementation(self):
-        return self._implementation
+        pass
 
     def __call__(self, kw, system=None):
         if system:
@@ -121,22 +118,7 @@ class DummyTemplateRenderer:
         value. If the renderer did not receive the key at all, or the
         value received by the renderer doesn't match the assertion
         value, raise an :exc:`AssertionError`."""
-        for k, v in kw.items():
-            myval = self._received.get(k, _marker)
-            if myval is _marker:
-                myval = self._implementation._received.get(k, _marker)
-                if myval is _marker:
-                    raise AssertionError(
-                        'A value for key "%s" was not passed to the renderer'
-                        % k
-                    )
-
-            if myval != v:
-                raise AssertionError(
-                    '\nasserted value for %s: %r\nactual value: %r'
-                    % (k, v, myval)
-                )
-        return True
+        pass
 
 
 class DummyResource:
@@ -219,15 +201,7 @@ class DummyResource:
         resource.  If any extra keyword args are passed in via the ``kw``
         argument, use these keywords to add to or override existing
         resource keywords (attributes)."""
-        oldkw = self.kw.copy()
-        oldkw.update(kw)
-        inst = self.__class__(self.__name__, self.__parent__, **oldkw)
-        inst.subs = copy.deepcopy(self.subs)
-        if __name__ is not _marker:
-            inst.__name__ = __name__
-        if __parent__ is not _marker:
-            inst.__parent__ = __parent__
-        return inst
+        pass
 
 
 DummyModel = DummyResource  # b/w compat (forever)
@@ -242,20 +216,16 @@ class DummySession(dict):
         pass
 
     def invalidate(self):
-        self.clear()
+        pass
 
     def flash(self, msg, queue='', allow_duplicate=True):
-        storage = self.setdefault('_f_' + queue, [])
-        if allow_duplicate or (msg not in storage):
-            storage.append(msg)
+        pass
 
     def pop_flash(self, queue=''):
-        storage = self.pop('_f_' + queue, [])
-        return storage
+        pass
 
     def peek_flash(self, queue=''):
-        storage = self.get('_f_' + queue, [])
-        return storage
+        pass
 
     def new_csrf_token(self):
         token = '0123456789012345678901234567890123456789'
@@ -369,35 +339,30 @@ class DummyRequest(
         self.__dict__.update(kw)
 
     def _get_registry(self):
-        if self._registry is None:
-            return get_current_registry()
-        return self._registry
+        pass
 
     def _set_registry(self, registry):
-        self._registry = registry
+        pass
 
     def _del_registry(self):
-        self._registry = None
+        pass
 
     registry = property(_get_registry, _set_registry, _del_registry)
 
     def _set_accept(self, value):
-        self._accept = create_accept_header(value)
+        pass
 
     def _get_accept(self):
-        if self._accept is None:
-            self._accept = create_accept_header(None)
-        return self._accept
+        pass
 
     def _del_accept(self):
-        self._accept = None
+        pass
 
     accept = property(_get_accept, _set_accept, _del_accept)
 
     @reify
     def response(self):
-        f = _get_response_factory(self.registry)
-        return f(self)
+        pass
 
 
 have_zca = True
@@ -521,27 +486,7 @@ def tearDown(unhook_zca=True):
     argument ``hook_zca=True``.  If :mod:`zope.component` cannot be
     imported, ``unhook_zca`` is set to ``False``.
     """
-    global have_zca
-    if unhook_zca and have_zca:
-        try:
-            from zope.component import getSiteManager
-
-            getSiteManager.reset()
-        except ImportError:  # pragma: no cover
-            have_zca = False
-    info = manager.pop()
-    manager.clear()
-    if info is not None:
-        registry = info['registry']
-        if hasattr(registry, '__init__') and hasattr(registry, '__name__'):
-            try:
-                registry.__init__(registry.__name__)
-            except TypeError:
-                # calling __init__ is largely for the benefit of
-                # people who want to use the global ZCA registry;
-                # however maybe somebody's using a registry we don't
-                # understand, let's not blow up
-                pass
+    pass
 
 
 def cleanUp(*arg, **kw):
@@ -659,14 +604,4 @@ def testConfig(
             req = DummyRequest()
             resp = myview(req)
     """
-    config = setUp(
-        registry=registry,
-        request=request,
-        hook_zca=hook_zca,
-        autocommit=autocommit,
-        settings=settings,
-    )
-    try:
-        yield config
-    finally:
-        tearDown(unhook_zca=hook_zca)
+    pass

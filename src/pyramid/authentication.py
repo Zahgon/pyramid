@@ -30,17 +30,10 @@ class CallbackAuthenticationPolicy:
     callback = None
 
     def _log(self, msg, methodname, request):
-        logger = request.registry.queryUtility(IDebugLogger)
-        if logger:
-            cls = self.__class__
-            classname = cls.__module__ + '.' + cls.__name__
-            methodname = classname + '.' + methodname
-            logger.debug(methodname + ': ' + msg)
+        pass
 
     def _clean_principal(self, princid):
-        if princid in (Authenticated, Everyone):
-            princid = None
-        return princid
+        pass
 
     def authenticated_userid(self, request):
         """Return the authenticated userid or ``None``.
@@ -52,47 +45,7 @@ class CallbackAuthenticationPolicy:
         and only if the callback returns a value that is not ``None``.
 
         """
-        debug = self.debug
-        userid = self.unauthenticated_userid(request)
-        if userid is None:
-            debug and self._log(
-                'call to unauthenticated_userid returned None; returning None',
-                'authenticated_userid',
-                request,
-            )
-            return None
-        if self._clean_principal(userid) is None:
-            debug and self._log(
-                (
-                    'use of userid %r is disallowed by any built-in Pyramid '
-                    'security policy, returning None' % userid
-                ),
-                'authenticated_userid',
-                request,
-            )
-            return None
-
-        if self.callback is None:
-            debug and self._log(
-                f'there was no groupfinder callback; returning {userid!r}',
-                'authenticated_userid',
-                request,
-            )
-            return userid
-        callback_ok = self.callback(userid, request)
-        if callback_ok is not None:  # is not None!
-            debug and self._log(
-                'groupfinder callback returned %r; returning %r'
-                % (callback_ok, userid),
-                'authenticated_userid',
-                request,
-            )
-            return userid
-        debug and self._log(
-            'groupfinder callback returned None; returning None',
-            'authenticated_userid',
-            request,
-        )
+        pass
 
     def effective_principals(self, request):
         """A list of effective principals derived from request.
@@ -118,63 +71,7 @@ class CallbackAuthenticationPolicy:
             return [Everyone, Authenticated, userid] + extra_principals
 
         """
-        debug = self.debug
-        effective_principals = [Everyone]
-        userid = self.unauthenticated_userid(request)
-
-        if userid is None:
-            debug and self._log(
-                'unauthenticated_userid returned %r; returning %r'
-                % (userid, effective_principals),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        if self._clean_principal(userid) is None:
-            debug and self._log(
-                (
-                    'unauthenticated_userid returned disallowed %r; returning '
-                    '%r as if it was None' % (userid, effective_principals)
-                ),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        if self.callback is None:
-            debug and self._log(
-                'groupfinder callback is None, so groups is []',
-                'effective_principals',
-                request,
-            )
-            groups = []
-        else:
-            groups = self.callback(userid, request)
-            debug and self._log(
-                f'groupfinder callback returned {groups!r} as groups',
-                'effective_principals',
-                request,
-            )
-
-        if groups is None:  # is None!
-            debug and self._log(
-                f'returning effective principals: {effective_principals!r}',
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        effective_principals.append(Authenticated)
-        effective_principals.append(userid)
-        effective_principals.extend(groups)
-
-        debug and self._log(
-            f'returning effective principals: {effective_principals!r}',
-            'effective_principals',
-            request,
-        )
-        return effective_principals
+        pass
 
 
 @implementer(IAuthenticationPolicy)
@@ -208,14 +105,10 @@ class RepozeWho1AuthenticationPolicy(CallbackAuthenticationPolicy):
         self.callback = callback
 
     def _get_identity(self, request):
-        return request.environ.get('repoze.who.identity')
+        pass
 
     def _get_identifier(self, request):
-        plugins = request.environ.get('repoze.who.plugins')
-        if plugins is None:
-            return None
-        identifier = plugins[self.identifier_name]
-        return identifier
+        pass
 
     def authenticated_userid(self, request):
         """Return the authenticated userid or ``None``.
@@ -227,49 +120,11 @@ class RepozeWho1AuthenticationPolicy(CallbackAuthenticationPolicy):
         and only if the callback returns a value that is not ``None``.
 
         """
-        identity = self._get_identity(request)
-
-        if identity is None:
-            self.debug and self._log(
-                'repoze.who identity is None, returning None',
-                'authenticated_userid',
-                request,
-            )
-            return None
-
-        userid = identity['repoze.who.userid']
-
-        if userid is None:
-            self.debug and self._log(
-                'repoze.who.userid is None, returning None' % userid,
-                'authenticated_userid',
-                request,
-            )
-            return None
-
-        if self._clean_principal(userid) is None:
-            self.debug and self._log(
-                (
-                    'use of userid %r is disallowed by any built-in Pyramid '
-                    'security policy, returning None' % userid
-                ),
-                'authenticated_userid',
-                request,
-            )
-            return None
-
-        if self.callback is None:
-            return userid
-
-        if self.callback(identity, request) is not None:  # is not None!
-            return userid
+        pass
 
     def unauthenticated_userid(self, request):
         """Return the ``repoze.who.userid`` key from the detected identity."""
-        identity = self._get_identity(request)
-        if identity is None:
-            return None
-        return identity['repoze.who.userid']
+        pass
 
     def effective_principals(self, request):
         """A list of effective principals derived from the identity.
@@ -285,64 +140,7 @@ class RepozeWho1AuthenticationPolicy(CallbackAuthenticationPolicy):
         ``callback``.
 
         """
-        effective_principals = [Everyone]
-        identity = self._get_identity(request)
-
-        if identity is None:
-            self.debug and self._log(
-                (
-                    'repoze.who identity was None; returning %r'
-                    % effective_principals
-                ),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        if self.callback is None:
-            groups = []
-        else:
-            groups = self.callback(identity, request)
-
-        if groups is None:  # is None!
-            self.debug and self._log(
-                (
-                    'security policy groups callback returned None; returning '
-                    '%r' % effective_principals
-                ),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        userid = identity['repoze.who.userid']
-
-        if userid is None:
-            self.debug and self._log(
-                (
-                    'repoze.who.userid was None; returning %r'
-                    % effective_principals
-                ),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        if self._clean_principal(userid) is None:
-            self.debug and self._log(
-                (
-                    'unauthenticated_userid returned disallowed %r; returning '
-                    '%r as if it was None' % (userid, effective_principals)
-                ),
-                'effective_principals',
-                request,
-            )
-            return effective_principals
-
-        effective_principals.append(Authenticated)
-        effective_principals.append(userid)
-        effective_principals.extend(groups)
-        return effective_principals
+        pass
 
     def remember(self, request, userid, **kw):
         """Store the ``userid`` as ``repoze.who.userid``.
@@ -352,13 +150,7 @@ class RepozeWho1AuthenticationPolicy(CallbackAuthenticationPolicy):
         provide all keyword arguments as additional identity
         keys. Useful keys could be ``max_age`` or ``userdata``.
         """
-        identifier = self._get_identifier(request)
-        if identifier is None:
-            return []
-        environ = request.environ
-        identity = kw
-        identity['repoze.who.userid'] = userid
-        return identifier.remember(environ, identity)
+        pass
 
     def forget(self, request):
         """Forget the current authenticated user.
@@ -367,11 +159,7 @@ class RepozeWho1AuthenticationPolicy(CallbackAuthenticationPolicy):
         cookie responsible for tracking the current user.
 
         """
-        identifier = self._get_identifier(request)
-        if identifier is None:
-            return []
-        identity = self._get_identity(request)
-        return identifier.forget(request.environ, identity)
+        pass
 
 
 @implementer(IAuthenticationPolicy)
@@ -412,19 +200,19 @@ class RemoteUserAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
         """The ``REMOTE_USER`` value found within the ``environ``."""
-        return request.environ.get(self.environ_key)
+        pass
 
     def remember(self, request, userid, **kw):
         """A no-op. The ``REMOTE_USER`` does not provide a protocol for
         remembering the user. This will be application-specific and can
         be done somewhere else or in a subclass."""
-        return []
+        pass
 
     def forget(self, request):
         """A no-op. The ``REMOTE_USER`` does not provide a protocol for
         forgetting the user. This will be application-specific and can
         be done somewhere else or in a subclass."""
-        return []
+        pass
 
 
 @implementer(IAuthenticationPolicy)
@@ -632,9 +420,7 @@ class AuthTktAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
         """The userid key within the auth_tkt cookie."""
-        result = self.cookie.identify(request)
-        if result:
-            return result['userid']
+        pass
 
     def remember(self, request, userid, **kw):
         """Accepts the following kw args: ``max_age=<int-seconds>,
@@ -644,11 +430,11 @@ class AuthTktAuthenticationPolicy(CallbackAuthenticationPolicy):
         the response.
 
         """
-        return self.cookie.remember(request, userid, **kw)
+        pass
 
     def forget(self, request):
         """A list of headers which will delete appropriate cookies."""
-        return self.cookie.forget(request)
+        pass
 
 
 def b64encode(v):
@@ -706,22 +492,10 @@ class AuthTicket:
         self.hashalg = hashalg
 
     def digest(self):
-        return calculate_digest(
-            self.ip,
-            self.time,
-            self.secret,
-            self.userid,
-            self.tokens,
-            self.user_data,
-            self.hashalg,
-        )
+        pass
 
     def cookie_value(self):
-        v = f'{self.digest()}{int(self.time):08x}{quote(self.userid)}!'
-        if self.tokens:
-            v += self.tokens + '!'
-        v += self.user_data
-        return v
+        pass
 
 
 # this class licensed under the MIT license (stolen from Paste)
@@ -745,80 +519,19 @@ def parse_ticket(secret, ticket, ip, hashalg='md5'):
     If the ticket cannot be parsed, a ``BadTicket`` exception will be raised
     with an explanation.
     """
-    ticket = text_(ticket).strip('"')
-    digest_size = hashlib.new(hashalg).digest_size * 2
-    digest = ticket[:digest_size]
-    try:
-        timestamp = int(ticket[digest_size : digest_size + 8], 16)
-    except ValueError as e:
-        raise BadTicket('Timestamp is not a hex integer: %s' % e)
-    try:
-        userid, data = ticket[digest_size + 8 :].split('!', 1)
-    except ValueError:
-        raise BadTicket('userid is not followed by !')
-    userid = unquote(userid)
-    if '!' in data:
-        tokens, user_data = data.split('!', 1)
-    else:  # pragma: no cover (never generated)
-        # @@: Is this the right order?
-        tokens = ''
-        user_data = data
-
-    expected = calculate_digest(
-        ip, timestamp, secret, userid, tokens, user_data, hashalg
-    )
-
-    # Avoid timing attacks (see
-    # http://seb.dbzteam.org/crypto/python-oauth-timing-hmac.pdf)
-    if strings_differ(expected, digest):
-        raise BadTicket(
-            'Digest signature is not correct', expected=(expected, digest)
-        )
-
-    tokens = tokens.split(',')
-
-    return (timestamp, userid, tokens, user_data)
+    pass
 
 
 # this function licensed under the MIT license (stolen from Paste)
 def calculate_digest(
     ip, timestamp, secret, userid, tokens, user_data, hashalg='md5'
 ):
-    secret = bytes_(secret, 'utf-8')
-    userid = bytes_(userid, 'utf-8')
-    tokens = bytes_(tokens, 'utf-8')
-    user_data = bytes_(user_data, 'utf-8')
-    hash_obj = hashlib.new(hashalg)
-
-    # Check to see if this is an IPv6 address
-    if ':' in ip:
-        ip_timestamp = ip + str(int(timestamp))
-        ip_timestamp = bytes_(ip_timestamp)
-    else:
-        # encode_ip_timestamp not required, left in for backwards compatibility
-        ip_timestamp = encode_ip_timestamp(ip, timestamp)
-
-    hash_obj.update(
-        ip_timestamp + secret + userid + b'\0' + tokens + b'\0' + user_data
-    )
-    digest = hash_obj.hexdigest()
-    hash_obj2 = hashlib.new(hashalg)
-    hash_obj2.update(bytes_(digest) + secret)
-    return hash_obj2.hexdigest()
+    pass
 
 
 # this function licensed under the MIT license (stolen from Paste)
 def encode_ip_timestamp(ip, timestamp):
-    ip_chars = ''.join(map(chr, map(int, ip.split('.'))))
-    t = int(timestamp)
-    ts = (
-        (t & 0xFF000000) >> 24,
-        (t & 0xFF0000) >> 16,
-        (t & 0xFF00) >> 8,
-        t & 0xFF,
-    )
-    ts_chars = ''.join(map(chr, ts))
-    return bytes_(ip_chars + ts_chars)
+    pass
 
 
 class AuthTktCookieHelper:
@@ -1025,99 +738,17 @@ class AuthTktCookieHelper:
         self.hashalg = hashalg
 
     def _get_cookies(self, request, value, max_age=None):
-        if self.domain:
-            domain = self.domain
-        else:
-            cur_domain = request.domain
-            if self.parent_domain and cur_domain.count('.') > 1:
-                domain = cur_domain.split('.', 1)[1]
-            elif self.wild_domain:
-                domain = cur_domain
-            else:
-                domain = None
-
-        profile = self.cookie_profile(request)
-
-        kw = {'domains': [domain]}
-        if max_age is not None:
-            kw['max_age'] = max_age
-
-        headers = profile.get_headers(value, **kw)
-        return headers
+        pass
 
     def identify(self, request):
         """Return a dictionary with authentication information, or ``None``
         if no valid auth_tkt is attached to ``request``"""
-        environ = request.environ
-        cookie = request.cookies.get(self.cookie_name)
-
-        if cookie is None:
-            return None
-
-        if self.include_ip:
-            remote_addr = environ['REMOTE_ADDR']
-        else:
-            remote_addr = '0.0.0.0'
-
-        try:
-            timestamp, userid, tokens, user_data = self.parse_ticket(
-                self.secret, cookie, remote_addr, self.hashalg
-            )
-        except self.BadTicket:
-            return None
-
-        now = self.now  # service tests
-
-        if now is None:
-            now = time_mod.time()
-
-        if self.timeout and ((timestamp + self.timeout) < now):
-            # the auth_tkt data has expired
-            return None
-
-        userid_typename = 'userid_type:'
-        user_data_info = user_data.split('|')
-        for datum in filter(None, user_data_info):
-            if datum.startswith(userid_typename):
-                userid_type = datum[len(userid_typename) :]
-                decoder = self.userid_type_decoders.get(userid_type)
-                if decoder:
-                    userid = decoder(userid)
-
-        reissue = self.reissue_time is not None
-
-        if reissue and not hasattr(request, '_authtkt_reissued'):
-            if (now - timestamp) > self.reissue_time:
-                # See https://github.com/Pylons/pyramid/issues#issue/108
-                tokens = list(filter(None, tokens))
-                headers = self.remember(
-                    request, userid, max_age=self.max_age, tokens=tokens
-                )
-
-                def reissue_authtkt(request, response):
-                    if not hasattr(request, '_authtkt_reissue_revoked'):
-                        for k, v in headers:
-                            response.headerlist.append((k, v))
-
-                request.add_response_callback(reissue_authtkt)
-                request._authtkt_reissued = True
-
-        environ['REMOTE_USER_TOKENS'] = tokens
-        environ['REMOTE_USER_DATA'] = user_data
-        environ['AUTH_TYPE'] = 'cookie'
-
-        identity = {}
-        identity['timestamp'] = timestamp
-        identity['userid'] = userid
-        identity['tokens'] = tokens
-        identity['userdata'] = user_data
-        return identity
+        pass
 
     def forget(self, request):
         """Return a set of expires Set-Cookie headers, which will destroy
         any existing auth_tkt cookie when attached to a response"""
-        request._authtkt_reissue_revoked = True
-        return self._get_cookies(request, None)
+        pass
 
     def remember(self, request, userid, max_age=None, tokens=()):
         """Return a set of Set-Cookie headers; when set into a response,
@@ -1138,64 +769,7 @@ class AuthTktCookieHelper:
           Tokens are available in the returned identity when an auth_tkt is
           found in the request and unpacked.  Default: ``()``.
         """
-        max_age = self.max_age if max_age is None else int(max_age)
-
-        environ = request.environ
-
-        if self.include_ip:
-            remote_addr = environ['REMOTE_ADDR']
-        else:
-            remote_addr = '0.0.0.0'
-
-        user_data = ''
-
-        encoding_data = self.userid_type_encoders.get(type(userid))
-
-        if encoding_data:
-            encoding, encoder = encoding_data
-        else:
-            warnings.warn(
-                "userid is of type {}, and is not supported by the "
-                "AuthTktAuthenticationPolicy. Explicitly converting to string "
-                "and storing as base64. Subsequent requests will receive a "
-                "string as the userid, it will not be decoded back to the "
-                "type provided.".format(type(userid)),
-                RuntimeWarning,
-            )
-            encoding, encoder = self.userid_type_encoders.get(str)
-            userid = str(userid)
-
-        userid = encoder(userid)
-        user_data = 'userid_type:%s' % encoding
-
-        new_tokens = []
-        for token in tokens:
-            if isinstance(token, str):
-                try:
-                    token = ascii_(token)
-                except UnicodeEncodeError:
-                    raise ValueError(f"Invalid token {token!r}")
-            if not (isinstance(token, str) and VALID_TOKEN.match(token)):
-                raise ValueError(f"Invalid token {token!r}")
-            new_tokens.append(token)
-        tokens = tuple(new_tokens)
-
-        if hasattr(request, '_authtkt_reissued'):
-            request._authtkt_reissue_revoked = True
-
-        ticket = self.AuthTicket(
-            self.secret,
-            userid,
-            remote_addr,
-            tokens=tokens,
-            user_data=user_data,
-            cookie_name=self.cookie_name,
-            secure=self.secure,
-            hashalg=self.hashalg,
-        )
-
-        cookie_value = ticket.cookie_value()
-        return self._get_cookies(request, cookie_value, max_age)
+        pass
 
 
 @implementer(IAuthenticationPolicy)
@@ -1236,14 +810,14 @@ class SessionAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def remember(self, request, userid, **kw):
         """Store a userid in the session."""
-        return self.helper.remember(request, userid, **kw)
+        pass
 
     def forget(self, request):
         """Remove the stored userid from the session."""
-        return self.helper.forget(request)
+        pass
 
     def unauthenticated_userid(self, request):
-        return self.helper.authenticated_userid(request)
+        pass
 
 
 class SessionAuthenticationHelper:
@@ -1264,18 +838,15 @@ class SessionAuthenticationHelper:
 
     def remember(self, request, userid, **kw):
         """Store a userid in the session."""
-        request.session[self.userid_key] = userid
-        return []
+        pass
 
     def forget(self, request, **kw):
         """Remove the stored userid from the session."""
-        if self.userid_key in request.session:
-            del request.session[self.userid_key]
-        return []
+        pass
 
     def authenticated_userid(self, request):
         """Return the stored userid."""
-        return request.session.get(self.userid_key)
+        pass
 
 
 @implementer(IAuthenticationPolicy)
@@ -1333,21 +904,19 @@ class BasicAuthAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
         """The userid parsed from the ``Authorization`` request header."""
-        credentials = extract_http_basic_credentials(request)
-        if credentials:
-            return credentials.username
+        pass
 
     def remember(self, request, userid, **kw):
         """A no-op. Basic authentication does not provide a protocol for
         remembering the user. Credentials are sent on every request.
 
         """
-        return []
+        pass
 
     def forget(self, request):
         """Returns challenge headers. This should be attached to a response
         to indicate that credentials are required."""
-        return [('WWW-Authenticate', 'Basic realm="%s"' % self.realm)]
+        pass
 
     def callback(self, username, request):
         # Username arg is ignored. Unfortunately

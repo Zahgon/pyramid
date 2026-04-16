@@ -101,10 +101,7 @@ def render_view_to_iterable(context, request, name='', secure=True):
 
     If ``secure`` is ``False``, no permission checking is
     done."""
-    response = render_view_to_response(context, request, name, secure)
-    if response is None:
-        return None
-    return response.app_iter
+    pass
 
 
 def render_view(context, request, name='', secure=True):
@@ -129,10 +126,7 @@ def render_view(context, request, name='', secure=True):
     disallowed.
 
     If ``secure`` is ``False``, no permission checking is done."""
-    iterable = render_view_to_iterable(context, request, name, secure)
-    if iterable is None:
-        return None
-    return b''.join(iterable)
+    pass
 
 
 class view_config:
@@ -229,11 +223,7 @@ class view_config:
         self._get_info()
 
     def _get_info(self):
-        depth = self.__dict__.get('_depth', 0)
-        frame = sys._getframe(depth + 2)
-        frameinfo = inspect.getframeinfo(frame)
-        sourceline = frameinfo[3][0].strip()
-        self._info = frameinfo[0], frameinfo[1], frameinfo[2], sourceline
+        pass
 
     def __call__(self, wrapped):
         settings = self.__dict__.copy()
@@ -269,12 +259,7 @@ def view_defaults(**settings):
 
     See :ref:`view_defaults` for more information.
     """
-
-    def wrap(wrapped):
-        wrapped.__view_defaults__ = settings
-        return wrapped
-
-    return wrap
+    pass
 
 
 class AppendSlashNotFoundViewFactory:
@@ -733,59 +718,4 @@ class ViewMethodsMixin:
            Also added the ``reraise`` argument.
 
         """
-        if request is None:
-            request = self
-        registry = getattr(request, 'registry', None)
-        if registry is None:
-            registry = get_current_registry()
-
-        if registry is None:
-            raise RuntimeError("Unable to retrieve registry")
-
-        if exc_info is None:
-            exc_info = sys.exc_info()
-
-        exc = exc_info[1]
-        attrs = request.__dict__
-        context_iface = providedBy(exc)
-
-        # clear old generated request.response, if any; it may
-        # have been mutated by the view, and its state is not
-        # sane (e.g. caching headers)
-        with hide_attrs(request, 'response', 'exc_info', 'exception'):
-            attrs['exception'] = exc
-            attrs['exc_info'] = exc_info
-            # we use .get instead of .__getitem__ below due to
-            # https://github.com/Pylons/pyramid/issues/700
-            request_iface = attrs.get('request_iface', IRequest)
-
-            manager.push({'request': request, 'registry': registry})
-
-            try:
-                response = _call_view(
-                    registry,
-                    request,
-                    exc,
-                    context_iface,
-                    '',
-                    view_types=None,
-                    view_classifier=IExceptionViewClassifier,
-                    secure=secure,
-                    request_iface=request_iface.combined,
-                )
-            except Exception:
-                if reraise:
-                    reraise_(*exc_info)
-                raise
-            finally:
-                manager.pop()
-
-        if response is None:
-            if reraise:
-                reraise_(*exc_info)
-            raise HTTPNotFound
-
-        # successful response, overwrite exception/exc_info
-        attrs['exception'] = exc
-        attrs['exc_info'] = exc_info
-        return response
+        pass

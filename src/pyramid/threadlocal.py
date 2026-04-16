@@ -33,7 +33,7 @@ class ThreadLocalManager(threading.local):
 
 
 def defaults():
-    return {'request': None, 'registry': global_registry}
+    pass
 
 
 manager = ThreadLocalManager(default=defaults)
@@ -51,7 +51,7 @@ def get_current_request():
     tested nor scripted.
 
     """
-    return manager.get()['request']
+    pass
 
 
 def get_current_registry(
